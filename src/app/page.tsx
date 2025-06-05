@@ -364,6 +364,96 @@ export default function IdeaSubmissionPage() {
                 </div>
               </div>
 
+              {/* Voice Recording Section */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  Voice Memo (optional)
+                </label>
+                
+                {!voiceRecording ? (
+                  // Recording Controls
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <Button
+                        type="button"
+                        onClick={isRecording ? pauseResumeRecording : startRecording}
+                        className={`w-16 h-16 rounded-full p-0 transition-all ${
+                          isRecording && !isPaused
+                            ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                            : isRecording && isPaused
+                            ? 'bg-yellow-500 hover:bg-yellow-600'
+                            : 'bg-[#FCC931] hover:bg-[#e6b52a]'
+                        }`}
+                        disabled={submission.status === 'submitting'}
+                      >
+                        {isRecording && !isPaused ? (
+                          <Pause className="h-6 w-6 text-white" />
+                        ) : isRecording && isPaused ? (
+                          <Play className="h-6 w-6 text-white" />
+                        ) : (
+                          <Mic className="h-6 w-6 text-gray-800" />
+                        )}
+                      </Button>
+                      
+                      {isRecording && (
+                        <div className="flex items-center space-x-3">
+                          <div className="text-lg font-mono text-red-600">
+                            {formatDuration(recordingDuration)}
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={stopRecording}
+                            variant="outline"
+                            size="sm"
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                          >
+                            <Square className="h-3 w-3 mr-1" />
+                            Stop
+                          </Button>
+                        </div>
+                      )}
+                      
+                      <p className="text-xs text-gray-600">
+                        {isRecording && !isPaused
+                          ? 'Recording... Tap to pause'
+                          : isRecording && isPaused
+                          ? 'Paused - Tap to resume'
+                          : 'Tap to start recording a voice memo'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  // Recorded Voice Memo
+                  <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-green-500 rounded-full p-2">
+                          <Mic className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">
+                            Voice Memo Recorded
+                          </p>
+                          <p className="text-xs text-green-600">
+                            Duration: {formatDuration(recordingDuration)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={deleteRecording}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* File Upload Section - Compact */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-gray-600">
@@ -483,7 +573,7 @@ export default function IdeaSubmissionPage() {
                     ? 'bg-blue-500 hover:bg-blue-600 text-white'
                     : 'bg-[#FCC931] hover:bg-[#e6b52a] text-gray-800'
                 } ${montserrat.className}`}
-                disabled={submission.status === 'submitting' || !requestText.trim()}
+                disabled={submission.status === 'submitting' || (!requestText.trim() && !voiceRecording)}
               >
                 {submission.status === 'submitting' ? (
                   <>
