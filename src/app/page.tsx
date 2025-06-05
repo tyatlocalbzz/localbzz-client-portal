@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react'
+import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle, Upload, X, FileText, Image, Film } from 'lucide-react'
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({ 
@@ -47,6 +47,7 @@ export default function IdeaSubmissionPage() {
   const [submission, setSubmission] = useState<SubmissionState>({ status: 'idle' })
   const [isVoiceSupported, setIsVoiceSupported] = useState<boolean>(false)
   const [isListening, setIsListening] = useState<boolean>(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   useEffect(() => {
     // Extract subdomain and determine client
@@ -83,6 +84,55 @@ export default function IdeaSubmissionPage() {
     setIsVoiceSupported('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
   }, [])
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const newFiles = Array.from(files).filter(file => {
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`File "${file.name}" is too large. Maximum size is 10MB.`)
+          return false
+        }
+        return true
+      })
+      setSelectedFiles(prev => [...prev, ...newFiles])
+    }
+  }
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    const files = event.dataTransfer.files
+    if (files) {
+      const newFiles = Array.from(files).filter(file => {
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`File "${file.name}" is too large. Maximum size is 10MB.`)
+          return false
+        }
+        return true
+      })
+      setSelectedFiles(prev => [...prev, ...newFiles])
+    }
+  }
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
@@ -97,6 +147,14 @@ export default function IdeaSubmissionPage() {
     setSubmission({ status: 'submitting' })
 
     try {
+      // For now, we'll just include file info in the request
+      // Later we can implement actual file upload to cloud storage
+      const fileInfo = selectedFiles.map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+      }))
+
       const response = await fetch('/api/submit', {
         method: 'POST',
         headers: {
@@ -107,6 +165,7 @@ export default function IdeaSubmissionPage() {
           subdomain,
           deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
           isUrgent,
+          attachments: fileInfo
         }),
       })
 
@@ -119,6 +178,7 @@ export default function IdeaSubmissionPage() {
         })
         setRequestText('')
         setIsUrgent(false)
+        setSelectedFiles([])
         
         // Reset success message after 5 seconds
         setTimeout(() => {
@@ -276,9 +336,81 @@ export default function IdeaSubmissionPage() {
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500">
                   Character count: {requestText.length}
-                </p>
+                </div>
+              </div>
+
+              {/* File Upload Section */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  Attachments (optional)
+                </label>
+                
+                {/* Upload Area */}
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#FCC931] transition-colors cursor-pointer"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('file-input')?.click()}
+                >
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-medium text-[#FCC931]">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Images, videos, documents (max 10MB each)
+                  </p>
+                  <input
+                    id="file-input"
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,.pdf,.doc,.docx,.txt,.rtf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Selected Files List */}
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-600">
+                      {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected:
+                    </p>
+                    {selectedFiles.map((file, index) => {
+                      const getFileIcon = () => {
+                        if (file.type.startsWith('image/')) return <Image className="h-4 w-4 text-blue-500" />
+                        if (file.type.startsWith('video/')) return <Film className="h-4 w-4 text-purple-500" />
+                        return <FileText className="h-4 w-4 text-gray-500" />
+                      }
+
+                      return (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-2 flex-1 min-w-0">
+                            {getFileIcon()}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-gray-700 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatFileSize(file.size)}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFile(index)}
+                            className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Urgency Checkbox */}

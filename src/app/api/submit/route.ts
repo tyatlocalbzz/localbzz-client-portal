@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getClientName } from '@/lib/clients'
 
+interface AttachmentInfo {
+  name: string
+  size: number
+  type: string
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Comprehensive environment debugging
@@ -30,13 +36,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { content, subdomain, deviceType, isUrgent } = body
+    const { content, subdomain, deviceType, isUrgent, attachments } = body
 
     console.log('📝 Request Data:')
     console.log('- Subdomain:', subdomain)
     console.log('- Content length:', content?.length)
     console.log('- Device type:', deviceType)
     console.log('- Is Urgent:', isUrgent)
+    console.log('- Attachments:', attachments?.length || 0, 'files')
     console.log('- Raw body keys:', Object.keys(body))
 
     if (!content?.trim()) {
@@ -79,6 +86,11 @@ export async function POST(request: NextRequest) {
     const requestTitle = content.length > 60 ? content.substring(0, 60) + '...' : content
     console.log('📝 Generated title:', requestTitle)
 
+    // Format attachments for Airtable
+    const attachmentsList = attachments && attachments.length > 0 
+      ? attachments.map((file: AttachmentInfo) => `${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)}KB)`).join('\n')
+      : null
+
     // Create the record for the new table structure
     const airtableRecord = {
       fields: {
@@ -90,7 +102,8 @@ export async function POST(request: NextRequest) {
         'Subdomain': resolvedSubdomain,
         'Submission Source': 'Client Portal',
         'AI Processing Status': 'Pending',
-        'Status': 'New'
+        'Status': 'New',
+        ...(attachmentsList && { 'Internal Notes': `Attachments:\n${attachmentsList}` })
       }
     }
 
