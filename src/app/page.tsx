@@ -317,7 +317,7 @@ export default function IdeaSubmissionPage() {
                     value={requestText}
                     onChange={(e) => setRequestText(e.target.value)}
                     placeholder="Example: 'We need a video for our product launch next month' or 'Here's some context about our upcoming event that might help with content planning...'"
-                    className="min-h-[140px] resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-lg"
+                    className="min-h-[200px] resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-lg"
                     disabled={submission.status === 'submitting'}
                   />
                   {isVoiceSupported && (
@@ -341,25 +341,22 @@ export default function IdeaSubmissionPage() {
                 </div>
               </div>
 
-              {/* File Upload Section */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-700">
+              {/* File Upload Section - Compact */}
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-gray-600">
                   Attachments (optional)
                 </label>
                 
-                {/* Upload Area */}
+                {/* Upload Area - Smaller */}
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#FCC931] transition-colors cursor-pointer"
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-[#FCC931] transition-colors cursor-pointer"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => document.getElementById('file-input')?.click()}
                 >
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium text-[#FCC931]">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Images, videos, documents (max 10MB each)
+                  <Upload className="h-5 w-5 text-gray-400 mx-auto mb-1" />
+                  <p className="text-xs text-gray-600">
+                    <span className="font-medium text-[#FCC931]">Click to upload</span> or drag files here
                   </p>
                   <input
                     id="file-input"
@@ -371,28 +368,28 @@ export default function IdeaSubmissionPage() {
                   />
                 </div>
 
-                {/* Selected Files List */}
+                {/* Selected Files List - Compact */}
                 {selectedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs text-gray-600">
-                      {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected:
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">
+                      {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}:
                     </p>
                     {selectedFiles.map((file, index) => {
                       const getFileIcon = () => {
-                        if (file.type.startsWith('image/')) return <Image className="h-4 w-4 text-blue-500" />
-                        if (file.type.startsWith('video/')) return <Film className="h-4 w-4 text-purple-500" />
-                        return <FileText className="h-4 w-4 text-gray-500" />
+                        if (file.type.startsWith('image/')) return <Image className="h-3 w-3 text-blue-500" />
+                        if (file.type.startsWith('video/')) return <Film className="h-3 w-3 text-purple-500" />
+                        return <FileText className="h-3 w-3 text-gray-500" />
                       }
 
                       return (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                           <div className="flex items-center space-x-2 flex-1 min-w-0">
                             {getFileIcon()}
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-700 truncate">
+                              <p className="text-xs font-medium text-gray-700 truncate">
                                 {file.name}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-400">
                                 {formatFileSize(file.size)}
                               </p>
                             </div>
@@ -402,9 +399,9 @@ export default function IdeaSubmissionPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeFile(index)}
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                            className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3 w-3" />
                           </Button>
                         </div>
                       )
@@ -413,23 +410,21 @@ export default function IdeaSubmissionPage() {
                 )}
               </div>
 
-              {/* Urgency Checkbox */}
-              <div className="flex items-center space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              {/* Urgency Checkbox - Compact */}
+              <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                 <Checkbox
                   id="urgent-checkbox"
                   checked={isUrgent}
                   onCheckedChange={(checked: boolean) => setIsUrgent(checked)}
                   className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
                 />
-                <div className="flex items-center space-x-2 flex-1">
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  <label
-                    htmlFor="urgent-checkbox"
-                    className="text-sm font-medium text-orange-700 cursor-pointer select-none"
-                  >
-                    Mark as urgent - requires immediate attention
-                  </label>
-                </div>
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <label
+                  htmlFor="urgent-checkbox"
+                  className="text-xs font-medium text-orange-700 cursor-pointer select-none"
+                >
+                  Mark as urgent - requires immediate attention
+                </label>
               </div>
 
               {/* Submit Button */}
