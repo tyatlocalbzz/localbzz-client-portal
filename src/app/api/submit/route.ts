@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-interface AttachmentInfo {
-  name: string
-  size: number
-  type: string
-}
-
 export async function POST(request: NextRequest) {
   try {
     // Comprehensive environment debugging
@@ -81,11 +75,6 @@ export async function POST(request: NextRequest) {
     const requestTitle = content.length > 60 ? content.substring(0, 60) + '...' : content
     console.log('📝 Generated title:', requestTitle)
 
-    // Format attachments for Airtable
-    const attachmentsList = attachments && attachments.length > 0 
-      ? attachments.map((file: AttachmentInfo) => `${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)}KB)`).join('\n')
-      : null
-
     // Create the record for the new table structure
     const airtableRecord = {
       fields: {
@@ -94,12 +83,11 @@ export async function POST(request: NextRequest) {
         'Type': isRequest ? 'Request' : 'Insights',
         'Topic': topic,
         'Priority': isRequest && isUrgent ? 'Urgent' : 'Normal',
-        'Status': 'New',
-        ...(attachmentsList && { 'Team Notes': `Attachments:\n${attachmentsList}` })
+        'Status': 'New'
       }
     }
 
-    console.log('�� Airtable Record to submit:')
+    console.log(' Airtable Record to submit:')
     console.log(JSON.stringify(airtableRecord, null, 2))
 
     // Build URL with explicit environment variable logging
