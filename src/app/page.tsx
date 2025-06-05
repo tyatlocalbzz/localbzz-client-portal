@@ -134,36 +134,29 @@ export default function IdeaSubmissionPage() {
     }
 
     try {
-      // For now, we'll just include file info in the request
-      // Later we can implement actual file upload to cloud storage
-      const fileInfo = selectedFiles.map(file => ({
-        name: file.name,
-        size: file.size,
-        type: file.type
-      }))
-
-      // Add voice recording as a "file" if it exists
+      // Create FormData to handle both text and file uploads
+      const formData = new FormData()
+      
+      // Add text content (or placeholder for voice-only)
+      formData.append('content', requestText.trim() || `[Voice memo recorded - ${formatDuration(recordingDuration)}]`)
+      formData.append('subdomain', subdomain)
+      formData.append('deviceType', /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop')
+      formData.append('isRequest', isRequest.toString())
+      formData.append('isUrgent', (isRequest && isUrgent).toString())
+      
+      // Add voice recording if it exists
       if (voiceRecording) {
-        fileInfo.push({
-          name: `voice-memo-${Date.now()}.webm`,
-          size: voiceRecording.size,
-          type: voiceRecording.type
-        })
+        formData.append('voiceMemo', voiceRecording, `voice-memo-${Date.now()}.webm`)
       }
+      
+      // Add other files
+      selectedFiles.forEach((file, index) => {
+        formData.append(`file${index}`, file)
+      })
 
       const response = await fetch('/api/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: requestText.trim() || `[Voice memo recorded - ${formatDuration(recordingDuration)}]`,
-          subdomain,
-          deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-          isRequest,
-          isUrgent: isRequest && isUrgent, // Only urgent if it's actually a request
-          attachments: fileInfo
-        }),
+        body: formData, // Send FormData instead of JSON
       })
 
       const result = await response.json()

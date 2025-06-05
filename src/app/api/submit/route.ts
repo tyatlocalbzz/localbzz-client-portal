@@ -28,8 +28,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
-    const { content, subdomain, deviceType, isRequest, isUrgent, attachments } = body
+    // Parse FormData
+    const formData = await request.formData()
+    const content = formData.get('content') as string
+    const subdomain = formData.get('subdomain') as string
+    const deviceType = formData.get('deviceType') as string
+    const isRequest = formData.get('isRequest') === 'true'
+    const isUrgent = formData.get('isUrgent') === 'true'
+    const voiceMemo = formData.get('voiceMemo') as File | null
 
     console.log('📝 Request Data:')
     console.log('- Subdomain:', subdomain)
@@ -37,8 +43,7 @@ export async function POST(request: NextRequest) {
     console.log('- Device type:', deviceType)
     console.log('- Is Request:', isRequest)
     console.log('- Is Urgent:', isUrgent)
-    console.log('- Attachments:', attachments?.length || 0, 'files')
-    console.log('- Raw body keys:', Object.keys(body))
+    console.log('- Voice Memo:', voiceMemo ? `${voiceMemo.name} (${voiceMemo.size} bytes)` : 'None')
 
     if (!content?.trim()) {
       console.log('❌ Validation failed: Content is empty')
@@ -71,19 +76,24 @@ export async function POST(request: NextRequest) {
 
     console.log('🏷️ Categorized as:', topic)
 
-    // Generate a title from the first 60 characters
-    const requestTitle = content.length > 60 ? content.substring(0, 60) + '...' : content
-    console.log('📝 Generated title:', requestTitle)
+    // Handle voice memo indication
+    let finalContent = content
+    if (voiceMemo) {
+      console.log('🎤 Voice memo received:', voiceMemo.name, voiceMemo.size, 'bytes')
+      finalContent = `${content}\n\n🎤 Voice memo recorded: ${voiceMemo.name} (${(voiceMemo.size / 1024).toFixed(1)}KB)`
+    }
 
     // Create the record for the new table structure
     const airtableRecord = {
       fields: {
-        'Content': content,
+        'Content': finalContent,
         'Client Portal Subdomain': resolvedSubdomain, // Let Airtable lookup the client
         'Type': isRequest ? 'Request' : 'Insights',
         'Topic': topic,
         'Priority': isRequest && isUrgent ? 'Urgent' : 'Normal',
         'Status': 'New'
+        // TODO: Voice Memo attachment field would require file hosting service
+        // 'Voice Memo': voiceMemo ? [{ url: 'https://your-storage-service.com/file-url' }] : null
       }
     }
 
