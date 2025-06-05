@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClientName } from '@/lib/clients'
 
 interface AttachmentInfo {
   name: string
@@ -55,33 +54,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get client information with better localhost handling
+    // Get resolved subdomain with better localhost handling
     let resolvedSubdomain = subdomain
     if (!resolvedSubdomain || resolvedSubdomain === '') {
       resolvedSubdomain = 'demo'
       console.log('🔄 Using default subdomain: demo')
     }
     
-    const clientName = getClientName(resolvedSubdomain)
-    console.log('👤 Client resolved:', clientName, 'from subdomain:', resolvedSubdomain)
+    console.log('🌐 Using subdomain for Airtable lookup:', resolvedSubdomain)
 
     // Categorize the request based on keywords
     const contentLower = content.toLowerCase()
-    let category = 'General Request'
+    let topic = 'General'
     
-    if (contentLower.includes('shoot') || contentLower.includes('photo') || contentLower.includes('video')) {
-      category = 'Content Shoot'
-    } else if (contentLower.includes('content') || contentLower.includes('post') || contentLower.includes('social')) {
-      category = 'Content Creation'
+    if (contentLower.includes('content') || contentLower.includes('post') || contentLower.includes('social') || contentLower.includes('shoot') || contentLower.includes('photo') || contentLower.includes('video')) {
+      topic = 'Content'
     } else if (contentLower.includes('strategy') || contentLower.includes('plan') || contentLower.includes('campaign')) {
-      category = 'Strategy & Planning'
+      topic = 'Strategy'
     } else if (contentLower.includes('update') || contentLower.includes('business') || contentLower.includes('news')) {
-      category = 'Business Update'
-    } else if (contentLower.includes('feedback') || contentLower.includes('review') || contentLower.includes('thoughts')) {
-      category = 'Feedback & Review'
+      topic = 'Business Update'
     }
 
-    console.log('🏷️ Categorized as:', category)
+    console.log('🏷️ Categorized as:', topic)
 
     // Generate a title from the first 60 characters
     const requestTitle = content.length > 60 ? content.substring(0, 60) + '...' : content
@@ -95,16 +89,14 @@ export async function POST(request: NextRequest) {
     // Create the record for the new table structure
     const airtableRecord = {
       fields: {
-        'Request Title': requestTitle,
-        'Full Request': content,
-        'Client Name': clientName,
-        'Request Category': category,
-        'Urgent?': isRequest && isUrgent || false,
-        'Subdomain': resolvedSubdomain,
-        'Submission Source': isRequest ? 'Client Portal - Request' : 'Client Portal - Insights',
-        'AI Processing Status': 'Pending',
-        'Status': isRequest ? 'New' : 'Information',
-        ...(attachmentsList && { 'Internal Notes': `Attachments:\n${attachmentsList}` })
+        'Content': content,
+        'Client Portal Subdomain': resolvedSubdomain, // Let Airtable lookup the client
+        'Type': isRequest ? 'Request' : 'Insights',
+        'Topic': topic,
+        'Priority': isRequest && isUrgent ? 'Urgent' : 'Normal',
+        'Status': 'New',
+        'Date': new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+        ...(attachmentsList && { 'Team Notes': `Attachments:\n${attachmentsList}` })
       }
     }
 
@@ -181,22 +173,21 @@ export async function POST(request: NextRequest) {
     const airtableResult = await airtableResponse.json()
     console.log('✅ Request submitted successfully:')
     console.log({
-      client: clientName,
       subdomain: resolvedSubdomain,
       contentLength: content.length,
+      type: isRequest ? 'Request' : 'Insights',
+      priority: isRequest && isUrgent ? 'Urgent' : 'Normal',
       deviceType: deviceType || 'unknown',
-      isUrgent: isUrgent || false,
-      category,
       recordId: airtableResult.id
     })
 
     return NextResponse.json({
       success: true,
-      message: 'Request submitted successfully',
-      client: clientName,
+      message: 'Submission successful',
+      subdomain: resolvedSubdomain,
       recordId: airtableResult.id,
-      category,
-      urgent: isUrgent || false
+      type: isRequest ? 'Request' : 'Insights',
+      priority: isRequest && isUrgent ? 'Urgent' : 'Normal'
     })
 
   } catch (error) {
