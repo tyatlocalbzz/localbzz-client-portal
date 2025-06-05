@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle, Upload, X, FileText, Image, Film } from 'lucide-react'
+import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle, Upload, X, FileText, Image, Film, Square, Play, Pause } from 'lucide-react'
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({ 
@@ -46,9 +46,15 @@ export default function IdeaSubmissionPage() {
   const [isRequest, setIsRequest] = useState<boolean>(false)
   const [isUrgent, setIsUrgent] = useState<boolean>(false)
   const [submission, setSubmission] = useState<SubmissionState>({ status: 'idle' })
-  const [isVoiceSupported, setIsVoiceSupported] = useState<boolean>(false)
-  const [isListening, setIsListening] = useState<boolean>(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  
+  // Voice recording states
+  const [isRecording, setIsRecording] = useState<boolean>(false)
+  const [isPaused, setIsPaused] = useState<boolean>(false)
+  const [recordingDuration, setRecordingDuration] = useState<number>(0)
+  const [voiceRecording, setVoiceRecording] = useState<Blob | null>(null)
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     // Extract subdomain and determine client
@@ -80,9 +86,6 @@ export default function IdeaSubmissionPage() {
     
     console.log('- Final subdomain:', extractedSubdomain)
     setSubdomain(extractedSubdomain)
-
-    // Check for voice input support
-    setIsVoiceSupported('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
   }, [])
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,15 +140,22 @@ export default function IdeaSubmissionPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
-    if (!requestText.trim()) {
+    if (!requestText.trim() && !voiceRecording) {
       setSubmission({ 
         status: 'error', 
-        message: 'Please share your thoughts, ideas, or insights with us!' 
+        message: 'Please share your thoughts, ideas, insights, or record a voice memo!' 
       })
       return
     }
 
     setSubmission({ status: 'submitting' })
+
+    // Stop recording if still active
+    if (isRecording) {
+      stopRecording()
+      // Wait a bit for the recording to finalize
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
 
     try {
       // For now, we'll just include file info in the request
@@ -156,13 +166,22 @@ export default function IdeaSubmissionPage() {
         type: file.type
       }))
 
+      // Add voice recording as a "file" if it exists
+      if (voiceRecording) {
+        fileInfo.push({
+          name: `voice-memo-${Date.now()}.webm`,
+          size: voiceRecording.size,
+          type: voiceRecording.type
+        })
+      }
+
       const response = await fetch('/api/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: requestText.trim(),
+          content: requestText.trim() || `[Voice memo recorded - ${formatDuration(recordingDuration)}]`,
           subdomain,
           deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
           isRequest,
@@ -186,13 +205,14 @@ export default function IdeaSubmissionPage() {
         setIsRequest(false)
         setIsUrgent(false)
         setSelectedFiles([])
+        deleteRecording() // Clear voice recording
         
         // Reset success message after 5 seconds
         setTimeout(() => {
           setSubmission({ status: 'idle' })
         }, 5000)
       } else {
-        throw new Error(result.error || 'Failed to submit request')
+        throw new Error(result.error || 'Failed to submit')
       }
     } catch (error) {
       console.error('Submission error:', error)
@@ -208,90 +228,101 @@ export default function IdeaSubmissionPage() {
     }
   }
 
-  const startVoiceInput = () => {
-    if (!isVoiceSupported) {
-      alert('Voice input is not supported on this device. Please type your request manually.')
-      return
-    }
-
-    // Implement Web Speech API for desktop browsers
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    
-    if (!SpeechRecognition) {
-      alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.')
-      return
-    }
-
-    const recognition = new SpeechRecognition()
-    
-    // Configure speech recognition
-    recognition.continuous = false
-    recognition.interimResults = false
-    recognition.lang = 'en-US'
-
-    // Handle speech recognition start
-    recognition.onstart = () => {
-      setIsListening(true)
-      console.log('Speech recognition started')
-    }
-
-    // Handle speech recognition results
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = event.results[0][0].transcript
-      setRequestText(prevText => {
-        const newText = prevText ? `${prevText} ${transcript}` : transcript
-        return newText
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        } 
       })
-      setIsListening(false)
-    }
-
-    // Handle errors
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error)
-      setIsListening(false)
       
-      let errorMessage = 'Speech recognition failed. Please try again.'
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+      })
       
-      switch (event.error) {
-        case 'no-speech':
-          errorMessage = 'No speech detected. Please try speaking again.'
-          break
-        case 'audio-capture':
-          errorMessage = 'Microphone not accessible. Please check permissions.'
-          break
-        case 'not-allowed':
-          errorMessage = 'Microphone permission denied. Please allow microphone access.'
-          break
-        case 'network':
-          errorMessage = 'Network error. Please check your connection.'
-          break
+      const chunks: BlobPart[] = []
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data)
+        }
       }
       
-      setSubmission({ 
-        status: 'error', 
-        message: errorMessage 
-      })
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: recorder.mimeType })
+        setVoiceRecording(blob)
+        stream.getTracks().forEach(track => track.stop())
+      }
       
-      // Clear error after 3 seconds
-      setTimeout(() => {
-        setSubmission({ status: 'idle' })
-      }, 3000)
-    }
-
-    // Handle successful completion
-    recognition.onend = () => {
-      setIsListening(false)
-      console.log('Speech recognition ended')
-    }
-
-    // Start recognition
-    try {
-      recognition.start()
+      recorder.start()
+      setMediaRecorder(recorder)
+      setIsRecording(true)
+      setIsPaused(false)
+      setRecordingDuration(0)
+      
+      // Start timer
+      const timer = setInterval(() => {
+        setRecordingDuration(prev => prev + 1)
+      }, 1000)
+      setRecordingTimer(timer)
+      
     } catch (error) {
-      console.error('Failed to start speech recognition:', error)
-      setIsListening(false)
-      alert('Failed to start voice input. Please try again.')
+      console.error('Error starting recording:', error)
+      setSubmission({
+        status: 'error',
+        message: 'Could not start recording. Please check microphone permissions.'
+      })
+      setTimeout(() => setSubmission({ status: 'idle' }), 3000)
     }
+  }
+
+  const pauseResumeRecording = () => {
+    if (!mediaRecorder) return
+    
+    if (isPaused) {
+      mediaRecorder.resume()
+      setIsPaused(false)
+      // Resume timer
+      const timer = setInterval(() => {
+        setRecordingDuration(prev => prev + 1)
+      }, 1000)
+      setRecordingTimer(timer)
+    } else {
+      mediaRecorder.pause()
+      setIsPaused(true)
+      // Pause timer
+      if (recordingTimer) {
+        clearInterval(recordingTimer)
+        setRecordingTimer(null)
+      }
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop()
+      setIsRecording(false)
+      setIsPaused(false)
+      if (recordingTimer) {
+        clearInterval(recordingTimer)
+        setRecordingTimer(null)
+      }
+    }
+  }
+
+  const deleteRecording = () => {
+    stopRecording()
+    setVoiceRecording(null)
+    setRecordingDuration(0)
+  }
+
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
@@ -327,21 +358,6 @@ export default function IdeaSubmissionPage() {
                     className="min-h-[200px] resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-lg"
                     disabled={submission.status === 'submitting'}
                   />
-                  {isVoiceSupported && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className={`absolute top-3 right-3 h-8 w-8 p-0 ${
-                        isListening ? 'text-red-500 animate-pulse' : 'text-gray-400 hover:text-[#FCC931]'
-                      }`}
-                      onClick={startVoiceInput}
-                      disabled={submission.status === 'submitting' || isListening}
-                      title={isListening ? 'Listening...' : 'Click to start voice input'}
-                    >
-                      <Mic className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
                 <div className="text-xs text-gray-500">
                   Character count: {requestText.length}
