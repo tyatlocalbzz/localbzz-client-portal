@@ -107,12 +107,10 @@ export default function IdeaSubmissionPage() {
     }
   }
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -297,65 +295,59 @@ export default function IdeaSubmissionPage() {
     setRecordingDuration(0)
   }
 
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-gray-800 text-white py-4 px-4">
+    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col overflow-hidden">
+      {/* Header - Compact for mobile */}
+      <header className="bg-gray-900 text-white py-3 px-4 shadow-lg flex-shrink-0">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-center">
-            <h1 className={`text-xl font-bold tracking-wider ${montserrat.className}`}>
+            <h1 className={`text-lg font-bold tracking-wider ${montserrat.className}`}>
               LOCAL BZZ
             </h1>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-2xl mx-auto pt-8 pb-16 p-4">
-        {/* Main Form */}
-        <Card className="shadow-lg border-0 bg-white">
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Request Input */}
-              <div className="space-y-3">
-                <div className="text-sm text-gray-600 mb-3">
+      {/* Main Content - Flexible height */}
+      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full p-3 sm:p-4 overflow-hidden">
+        {/* Main Form - Takes remaining space */}
+        <Card className="flex-1 flex flex-col shadow-xl border-0 bg-white/95 backdrop-blur-sm rounded-xl overflow-hidden">
+          <CardContent className="flex-1 flex flex-col p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-hidden">
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-3 sm:space-y-4 overflow-hidden">
+              {/* Request Input - Flexible */}
+              <div className="flex flex-col space-y-2 flex-shrink-0">
+                <div className="text-xs sm:text-sm text-gray-600">
                   Share your insights, ideas, and industry knowledge with us! Your expertise helps us create content that truly connects with your audience and drives results.
                 </div>
-                <div className="relative">
+                <div className="relative flex-1">
                   <Textarea
                     id="idea-input"
                     value={requestText}
                     onChange={(e) => setRequestText(e.target.value)}
                     placeholder="Example: 'Here's what's happening in our industry right now...' or 'Our customers have been asking about...' or 'We just learned something interesting that might make great content...'"
-                    className="min-h-[200px] resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-lg"
+                    className="min-h-[120px] max-h-[200px] resize-none text-sm leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-xl bg-white/80"
                     disabled={submission.status === 'submitting'}
                   />
                 </div>
                 <div className="text-xs text-gray-500">
-                  Character count: {requestText.length}
+                  {requestText.length} characters
                 </div>
               </div>
 
-              {/* Voice Recording Section */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-700">
-                  Voice Memo (optional)
+              {/* Voice Recording Section - Compact */}
+              <div className="space-y-2 flex-shrink-0">
+                <label className="text-xs font-medium text-gray-700">
+                  Voice Memo
                 </label>
                 
                 {!voiceRecording ? (
-                  // Recording Controls
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <div className="flex flex-col items-center space-y-3">
+                  // Recording Controls - Compact
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-3 text-center bg-white/60">
+                    <div className="flex flex-col items-center space-y-2">
                       <Button
                         type="button"
                         onClick={isRecording ? pauseResumeRecording : startRecording}
-                        className={`w-16 h-16 rounded-full p-0 transition-all ${
+                        className={`w-12 h-12 rounded-full p-0 transition-all shadow-lg ${
                           isRecording && !isPaused
                             ? 'bg-red-500 hover:bg-red-600 animate-pulse'
                             : isRecording && isPaused
@@ -365,17 +357,17 @@ export default function IdeaSubmissionPage() {
                         disabled={submission.status === 'submitting'}
                       >
                         {isRecording && !isPaused ? (
-                          <Pause className="h-6 w-6 text-white" />
+                          <Pause className="h-5 w-5 text-white" />
                         ) : isRecording && isPaused ? (
-                          <Play className="h-6 w-6 text-white" />
+                          <Play className="h-5 w-5 text-white" />
                         ) : (
-                          <Mic className="h-6 w-6 text-gray-800" />
+                          <Mic className="h-5 w-5 text-gray-800" />
                         )}
                       </Button>
                       
                       {isRecording && (
-                        <div className="flex items-center space-x-3">
-                          <div className="text-lg font-mono text-red-600">
+                        <div className="flex items-center space-x-2">
+                          <div className="text-sm font-mono text-red-600 font-bold">
                             {formatDuration(recordingDuration)}
                           </div>
                           <Button
@@ -383,9 +375,9 @@ export default function IdeaSubmissionPage() {
                             onClick={stopRecording}
                             variant="outline"
                             size="sm"
-                            className="border-red-300 text-red-600 hover:bg-red-50"
+                            className="h-6 border-red-300 text-red-600 hover:bg-red-50 text-xs"
                           >
-                            <Square className="h-3 w-3 mr-1" />
+                            <Square className="h-2 w-2 mr-1" />
                             Stop
                           </Button>
                         </div>
@@ -393,28 +385,25 @@ export default function IdeaSubmissionPage() {
                       
                       <p className="text-xs text-gray-600">
                         {isRecording && !isPaused
-                          ? 'Recording... Tap to pause'
+                          ? 'Recording...'
                           : isRecording && isPaused
-                          ? 'Paused - Tap to resume'
-                          : 'Tap to start recording a voice memo'
+                          ? 'Paused'
+                          : 'Tap to record'
                         }
                       </p>
                     </div>
                   </div>
                 ) : (
-                  // Recorded Voice Memo
-                  <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                  // Recorded Voice Memo - Compact
+                  <div className="border border-green-200 bg-green-50/80 rounded-xl p-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-green-500 rounded-full p-2">
-                          <Mic className="h-4 w-4 text-white" />
+                      <div className="flex items-center space-x-2">
+                        <div className="bg-green-500 rounded-full p-1.5">
+                          <Mic className="h-3 w-3 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-green-800">
-                            Voice Memo Recorded
-                          </p>
-                          <p className="text-xs text-green-600">
-                            Duration: {formatDuration(recordingDuration)}
+                          <p className="text-xs font-medium text-green-800">
+                            Voice Memo • {formatDuration(recordingDuration)}
                           </p>
                         </div>
                       </div>
@@ -423,9 +412,9 @@ export default function IdeaSubmissionPage() {
                         onClick={deleteRecording}
                         variant="ghost"
                         size="sm"
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
@@ -433,21 +422,21 @@ export default function IdeaSubmissionPage() {
               </div>
 
               {/* File Upload Section - Compact */}
-              <div className="space-y-2">
+              <div className="space-y-2 flex-shrink-0">
                 <label className="text-xs font-medium text-gray-600">
-                  Attachments (optional)
+                  Files
                 </label>
                 
                 {/* Upload Area - Smaller */}
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-[#FCC931] transition-colors cursor-pointer"
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-2 text-center hover:border-[#FCC931] transition-colors cursor-pointer bg-white/60"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => document.getElementById('file-input')?.click()}
                 >
-                  <Upload className="h-5 w-5 text-gray-400 mx-auto mb-1" />
+                  <Upload className="h-4 w-4 text-gray-400 mx-auto mb-1" />
                   <p className="text-xs text-gray-600">
-                    <span className="font-medium text-[#FCC931]">Click to upload</span> or drag files here
+                    <span className="font-medium text-[#FCC931]">Tap to add</span> files
                   </p>
                   <input
                     id="file-input"
@@ -465,45 +454,44 @@ export default function IdeaSubmissionPage() {
                     <p className="text-xs text-gray-500">
                       {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}:
                     </p>
-                    {selectedFiles.map((file, index) => {
-                      const getFileIcon = () => {
-                        if (file.type.startsWith('image/')) return <Image className="h-3 w-3 text-blue-500" />
-                        if (file.type.startsWith('video/')) return <Film className="h-3 w-3 text-purple-500" />
-                        return <FileText className="h-3 w-3 text-gray-500" />
-                      }
+                    <div className="max-h-16 overflow-y-auto space-y-1">
+                      {selectedFiles.map((file, index) => {
+                        const getFileIcon = () => {
+                          if (file.type.startsWith('image/')) return <Image className="h-3 w-3 text-blue-500" />
+                          if (file.type.startsWith('video/')) return <Film className="h-3 w-3 text-purple-500" />
+                          return <FileText className="h-3 w-3 text-gray-500" />
+                        }
 
-                      return (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <div className="flex items-center space-x-2 flex-1 min-w-0">
-                            {getFileIcon()}
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-gray-700 truncate">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                {formatFileSize(file.size)}
-                              </p>
+                        return (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50/80 rounded-lg">
+                            <div className="flex items-center space-x-2 flex-1 min-w-0">
+                              {getFileIcon()}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-gray-700 truncate">
+                                  {file.name}
+                                </p>
+                              </div>
                             </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(index)}
+                              className="h-5 w-5 p-0 text-gray-400 hover:text-red-500"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFile(index)}
-                            className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      )
-                    })}
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Request Type Selection */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              {/* Request Type Selection - Compact */}
+              <div className="space-y-2 flex-shrink-0">
+                <div className="flex items-center space-x-2 p-2 bg-blue-50/80 border border-blue-200 rounded-xl">
                   <input
                     id="request-checkbox"
                     type="checkbox"
@@ -516,15 +504,15 @@ export default function IdeaSubmissionPage() {
                   />
                   <label
                     htmlFor="request-checkbox"
-                    className="text-xs font-medium text-blue-700 cursor-pointer select-none"
+                    className="text-xs font-medium text-blue-700 cursor-pointer select-none flex-1"
                   >
-                    This is a request that needs action (not just sharing insights)
+                    This is a request that needs action
                   </label>
                 </div>
 
                 {/* Urgency Checkbox - Only show when isRequest is true */}
                 {isRequest && (
-                  <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-center space-x-2 p-2 bg-orange-50/80 border border-orange-200 rounded-xl">
                     <input
                       id="urgent-checkbox"
                       type="checkbox"
@@ -532,68 +520,70 @@ export default function IdeaSubmissionPage() {
                       onChange={(e) => setIsUrgent(e.target.checked)}
                       className="h-4 w-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    <AlertTriangle className="h-3 w-3 text-orange-600" />
                     <label
                       htmlFor="urgent-checkbox"
-                      className="text-xs font-medium text-orange-700 cursor-pointer select-none"
+                      className="text-xs font-medium text-orange-700 cursor-pointer select-none flex-1"
                     >
-                      Time-sensitive opportunity - let&apos;s prioritize this!
+                      Time-sensitive - prioritize this!
                     </label>
                   </div>
                 )}
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className={`w-full py-4 text-base font-bold transition-colors rounded-lg border-0 ${
-                  isRequest && isUrgent 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                    : isRequest
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-[#FCC931] hover:bg-[#e6b52a] text-gray-800'
-                } ${montserrat.className}`}
-                disabled={submission.status === 'submitting' || (!requestText.trim() && !voiceRecording)}
-              >
-                {submission.status === 'submitting' ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    {isRequest && isUrgent ? (
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Send className="h-4 w-4 mr-2" />
-                    )}
-                    {isRequest ? 'Submit Request' : 'Share Insights'}
-                  </>
-                )}
-              </Button>
+              {/* Submit Button - Fixed at bottom */}
+              <div className="flex-shrink-0 pt-2">
+                <Button
+                  type="submit"
+                  className={`w-full py-3 text-sm font-bold transition-all rounded-xl border-0 shadow-lg ${
+                    isRequest && isUrgent 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white' 
+                      : isRequest
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                      : 'bg-gradient-to-r from-[#FCC931] to-[#e6b52a] hover:from-[#e6b52a] hover:to-[#d4a428] text-gray-800'
+                  } ${montserrat.className}`}
+                  disabled={submission.status === 'submitting' || (!requestText.trim() && !voiceRecording)}
+                >
+                  {submission.status === 'submitting' ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      {isRequest && isUrgent ? (
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Send className="h-4 w-4 mr-2" />
+                      )}
+                      {isRequest ? 'Submit Request' : 'Share Insights'}
+                    </>
+                  )}
+                </Button>
+              </div>
 
               {/* Status Messages */}
               {submission.status === 'success' && (
-                <div className="flex items-center space-x-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <p className="text-sm text-green-700">{submission.message}</p>
+                <div className="flex items-center space-x-2 p-3 bg-green-50/80 border border-green-200 rounded-xl flex-shrink-0">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <p className="text-xs text-green-700">{submission.message}</p>
                 </div>
               )}
 
               {submission.status === 'error' && (
-                <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-                  <p className="text-sm text-red-700">{submission.message}</p>
+                <div className="flex items-center space-x-2 p-3 bg-red-50/80 border border-red-200 rounded-xl flex-shrink-0">
+                  <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <p className="text-xs text-red-700">{submission.message}</p>
                 </div>
               )}
             </form>
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="mt-8 text-center">
+        {/* Footer - Compact */}
+        <div className="text-center py-2 flex-shrink-0">
           <p className="text-xs text-gray-400">
-            Powered by <span className={`font-bold ${montserrat.className}`}>Local Bzz</span> Creative Portal
+            <span className={`font-bold ${montserrat.className}`}>Local Bzz</span> Portal
           </p>
         </div>
       </div>
