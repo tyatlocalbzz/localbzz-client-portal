@@ -43,6 +43,7 @@ interface SubmissionState {
 export default function IdeaSubmissionPage() {
   const [subdomain, setSubdomain] = useState<string>('')
   const [requestText, setRequestText] = useState<string>('')
+  const [isRequest, setIsRequest] = useState<boolean>(false)
   const [isUrgent, setIsUrgent] = useState<boolean>(false)
   const [submission, setSubmission] = useState<SubmissionState>({ status: 'idle' })
   const [isVoiceSupported, setIsVoiceSupported] = useState<boolean>(false)
@@ -164,7 +165,8 @@ export default function IdeaSubmissionPage() {
           content: requestText.trim(),
           subdomain,
           deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-          isUrgent,
+          isRequest,
+          isUrgent: isRequest && isUrgent, // Only urgent if it's actually a request
           attachments: fileInfo
         }),
       })
@@ -172,11 +174,16 @@ export default function IdeaSubmissionPage() {
       const result = await response.json()
 
       if (response.ok && result.success) {
+        const messageType = isRequest 
+          ? `Your${isUrgent ? ' urgent' : ''} request has been submitted!`
+          : 'Thanks for sharing your insights!'
+        
         setSubmission({ 
           status: 'success', 
-          message: `Thanks for sharing your insights${isUrgent ? ' (marked as urgent)' : ''}! We'll use this to create amazing content together.` 
+          message: `${messageType} We'll use this to create amazing content together.` 
         })
         setRequestText('')
+        setIsRequest(false)
         setIsUrgent(false)
         setSelectedFiles([])
         
@@ -410,30 +417,55 @@ export default function IdeaSubmissionPage() {
                 )}
               </div>
 
-              {/* Urgency Checkbox - Compact */}
-              <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                <Checkbox
-                  id="urgent-checkbox"
-                  checked={isUrgent}
-                  onCheckedChange={(checked: boolean) => setIsUrgent(checked)}
-                  className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                />
-                <AlertTriangle className="h-4 w-4 text-orange-600" />
-                <label
-                  htmlFor="urgent-checkbox"
-                  className="text-xs font-medium text-orange-700 cursor-pointer select-none"
-                >
-                  Time-sensitive opportunity - let&apos;s prioritize this!
-                </label>
+              {/* Request Type Selection */}
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <Checkbox
+                    id="request-checkbox"
+                    checked={isRequest}
+                    onCheckedChange={(checked: boolean) => {
+                      setIsRequest(checked)
+                      if (!checked) setIsUrgent(false) // Clear urgent if not a request
+                    }}
+                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                  />
+                  <label
+                    htmlFor="request-checkbox"
+                    className="text-xs font-medium text-blue-700 cursor-pointer select-none"
+                  >
+                    This is a request that needs action (not just sharing insights)
+                  </label>
+                </div>
+
+                {/* Urgency Checkbox - Only show when isRequest is true */}
+                {isRequest && (
+                  <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <Checkbox
+                      id="urgent-checkbox"
+                      checked={isUrgent}
+                      onCheckedChange={(checked: boolean) => setIsUrgent(checked)}
+                      className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                    />
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    <label
+                      htmlFor="urgent-checkbox"
+                      className="text-xs font-medium text-orange-700 cursor-pointer select-none"
+                    >
+                      Time-sensitive opportunity - let&apos;s prioritize this!
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className={`w-full py-4 text-base font-bold transition-colors rounded-lg ${
-                  isUrgent 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-0' 
-                    : 'bg-[#FCC931] hover:bg-[#e6b52a] text-gray-800 border-0'
+                className={`w-full py-4 text-base font-bold transition-colors rounded-lg border-0 ${
+                  isRequest && isUrgent 
+                    ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                    : isRequest
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-[#FCC931] hover:bg-[#e6b52a] text-gray-800'
                 } ${montserrat.className}`}
                 disabled={submission.status === 'submitting' || !requestText.trim()}
               >
@@ -444,12 +476,12 @@ export default function IdeaSubmissionPage() {
                   </>
                 ) : (
                   <>
-                    {isUrgent ? (
+                    {isRequest && isUrgent ? (
                       <AlertTriangle className="h-4 w-4 mr-2" />
                     ) : (
                       <Send className="h-4 w-4 mr-2" />
                     )}
-                    Submit
+                    {isRequest ? 'Submit Request' : 'Share Insights'}
                   </>
                 )}
               </Button>

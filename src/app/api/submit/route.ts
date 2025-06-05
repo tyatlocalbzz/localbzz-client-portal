@@ -36,12 +36,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { content, subdomain, deviceType, isUrgent, attachments } = body
+    const { content, subdomain, deviceType, isRequest, isUrgent, attachments } = body
 
     console.log('📝 Request Data:')
     console.log('- Subdomain:', subdomain)
     console.log('- Content length:', content?.length)
     console.log('- Device type:', deviceType)
+    console.log('- Is Request:', isRequest)
     console.log('- Is Urgent:', isUrgent)
     console.log('- Attachments:', attachments?.length || 0, 'files')
     console.log('- Raw body keys:', Object.keys(body))
@@ -98,16 +99,16 @@ export async function POST(request: NextRequest) {
         'Full Request': content,
         'Client Name': clientName,
         'Request Category': category,
-        'Urgent?': isUrgent || false,
+        'Urgent?': isRequest && isUrgent || false,
         'Subdomain': resolvedSubdomain,
-        'Submission Source': 'Client Portal',
+        'Submission Source': isRequest ? 'Client Portal - Request' : 'Client Portal - Insights',
         'AI Processing Status': 'Pending',
-        'Status': 'New',
+        'Status': isRequest ? 'New' : 'Information',
         ...(attachmentsList && { 'Internal Notes': `Attachments:\n${attachmentsList}` })
       }
     }
 
-    console.log('📋 Airtable Record to submit:')
+    console.log('�� Airtable Record to submit:')
     console.log(JSON.stringify(airtableRecord, null, 2))
 
     // Build URL with explicit environment variable logging
