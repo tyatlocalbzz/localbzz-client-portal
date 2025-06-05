@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
         'Topic': topic,
         'Priority': isRequest && isUrgent ? 'Urgent' : 'Normal',
         'Status': 'New',
-        'Date': new Date().toISOString().split('T')[0], // YYYY-MM-DD format
         ...(attachmentsList && { 'Team Notes': `Attachments:\n${attachmentsList}` })
       }
     }
