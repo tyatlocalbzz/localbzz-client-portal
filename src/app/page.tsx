@@ -139,7 +139,7 @@ export default function IdeaSubmissionPage() {
     if (!requestText.trim()) {
       setSubmission({ 
         status: 'error', 
-        message: 'Please enter your request before submitting.' 
+        message: 'Please share your thoughts, ideas, or insights with us!' 
       })
       return
     }
@@ -174,7 +174,7 @@ export default function IdeaSubmissionPage() {
       if (response.ok && result.success) {
         setSubmission({ 
           status: 'success', 
-          message: `Your${isUrgent ? ' urgent' : ''} request has been submitted successfully! We'll review it shortly.` 
+          message: `Thanks for sharing your insights${isUrgent ? ' (marked as urgent)' : ''}! We'll use this to create amazing content together.` 
         })
         setRequestText('')
         setIsUrgent(false)
@@ -191,7 +191,7 @@ export default function IdeaSubmissionPage() {
       console.error('Submission error:', error)
       setSubmission({ 
         status: 'error', 
-        message: 'Sorry, there was an error submitting your request. Please try again.' 
+        message: 'Sorry, there was an issue sharing your insights. Please try again!' 
       })
       
       // Reset error message after 5 seconds
@@ -309,14 +309,14 @@ export default function IdeaSubmissionPage() {
               {/* Request Input */}
               <div className="space-y-3">
                 <div className="text-sm text-gray-600 mb-3">
-                  Share content requests, shoot needs, context updates, feedback, or any other communications
+                  Share your insights, ideas, and industry knowledge with us! Your expertise helps us create content that truly connects with your audience and drives results.
                 </div>
                 <div className="relative">
                   <Textarea
                     id="idea-input"
                     value={requestText}
                     onChange={(e) => setRequestText(e.target.value)}
-                    placeholder="Example: 'We need a video for our product launch next month' or 'Here's some context about our upcoming event that might help with content planning...'"
+                    placeholder="Example: 'Here's what's happening in our industry right now...' or 'Our customers have been asking about...' or 'We just learned something interesting that might make great content...'"
                     className="min-h-[200px] resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-lg"
                     disabled={submission.status === 'submitting'}
                   />
@@ -423,7 +423,7 @@ export default function IdeaSubmissionPage() {
                   htmlFor="urgent-checkbox"
                   className="text-xs font-medium text-orange-700 cursor-pointer select-none"
                 >
-                  Mark as urgent - requires immediate attention
+                  Time-sensitive opportunity - let&apos;s prioritize this!
                 </label>
               </div>
 
