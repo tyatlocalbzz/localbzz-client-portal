@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -7,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react'
-import { getClientConfig, type ClientConfig } from '@/lib/clients'
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({ 
@@ -43,7 +41,6 @@ interface SubmissionState {
 }
 
 export default function IdeaSubmissionPage() {
-  const [clientConfig, setClientConfig] = useState<ClientConfig | null>(null)
   const [subdomain, setSubdomain] = useState<string>('')
   const [requestText, setRequestText] = useState<string>('')
   const [isUrgent, setIsUrgent] = useState<boolean>(false)
@@ -81,11 +78,6 @@ export default function IdeaSubmissionPage() {
     
     console.log('- Final subdomain:', extractedSubdomain)
     setSubdomain(extractedSubdomain)
-    
-    // Get client configuration
-    const config = getClientConfig(extractedSubdomain)
-    console.log('- Client config loaded:', config)
-    setClientConfig(config)
 
     // Check for voice input support
     setIsVoiceSupported('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
@@ -250,13 +242,6 @@ export default function IdeaSubmissionPage() {
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto pt-8 pb-16 p-4">
-        {/* Welcome Section */}
-        <div className="text-center mb-8">
-          <p className={`text-xl text-gray-700 ${montserrat.className}`}>
-            Welcome, <span className="font-bold text-gray-800">{clientConfig?.name || 'Demo Client'}</span>
-          </p>
-        </div>
-
         {/* Main Form */}
         <Card className="shadow-lg border-0 bg-white">
           <CardContent className="p-8">
