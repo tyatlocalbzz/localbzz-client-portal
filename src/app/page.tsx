@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle, Upload, X, FileText, Image, Film, Square, Play, Pause } from 'lucide-react'
 import { Montserrat } from 'next/font/google'
 
@@ -13,27 +12,6 @@ const montserrat = Montserrat({
   weight: '900', // Black weight
   variable: '--font-montserrat'
 })
-
-// TypeScript declarations for Web Speech API
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    SpeechRecognition: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    webkitSpeechRecognition: any
-  }
-}
-
-interface SpeechRecognitionEvent extends Event {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  results: any
-  resultIndex: number
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string
-  message: string
-}
 
 interface SubmissionState {
   status: 'idle' | 'submitting' | 'success' | 'error'
@@ -526,14 +504,15 @@ export default function IdeaSubmissionPage() {
               {/* Request Type Selection */}
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <Checkbox
+                  <input
                     id="request-checkbox"
+                    type="checkbox"
                     checked={isRequest}
-                    onCheckedChange={(checked: boolean) => {
-                      setIsRequest(checked)
-                      if (!checked) setIsUrgent(false) // Clear urgent if not a request
+                    onChange={(e) => {
+                      setIsRequest(e.target.checked)
+                      if (!e.target.checked) setIsUrgent(false) // Clear urgent if not a request
                     }}
-                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                    className="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <label
                     htmlFor="request-checkbox"
@@ -546,11 +525,12 @@ export default function IdeaSubmissionPage() {
                 {/* Urgency Checkbox - Only show when isRequest is true */}
                 {isRequest && (
                   <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                    <Checkbox
+                    <input
                       id="urgent-checkbox"
+                      type="checkbox"
                       checked={isUrgent}
-                      onCheckedChange={(checked: boolean) => setIsUrgent(checked)}
-                      className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                      className="h-4 w-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                     />
                     <AlertTriangle className="h-4 w-4 text-orange-600" />
                     <label
