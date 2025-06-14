@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { put } from '@vercel/blob'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,16 +34,14 @@ export async function POST(request: NextRequest) {
     const content = formData.get('content') as string
     const subdomain = formData.get('subdomain') as string
     const deviceType = formData.get('deviceType') as string
-    const isRequest = formData.get('isRequest') === 'true'
-    const isUrgent = formData.get('isUrgent') === 'true'
+    const isPriorityRequest = formData.get('isPriorityRequest') === 'true'
     const voiceMemo = formData.get('voiceMemo') as File | null
 
     console.log('📝 Request Data:')
     console.log('- Subdomain:', subdomain)
     console.log('- Content length:', content?.length)
     console.log('- Device type:', deviceType)
-    console.log('- Is Request:', isRequest)
-    console.log('- Is Urgent:', isUrgent)
+    console.log('- Is Priority Request:', isPriorityRequest)
     console.log('- Voice Memo:', voiceMemo ? `${voiceMemo.name} (${voiceMemo.size} bytes)` : 'None')
 
     if (!content?.trim()) {
@@ -76,11 +75,32 @@ export async function POST(request: NextRequest) {
 
     console.log('🏷️ Categorized as:', topic)
 
-    // Handle voice memo indication
+    // Handle voice memo upload to Vercel Blob
+    let voiceMemoUrl = null
+    if (voiceMemo) {
+      try {
+        console.log('🎤 Uploading voice memo to Vercel Blob:', voiceMemo.name, voiceMemo.size, 'bytes')
+        
+        // Upload to Vercel Blob
+        const blob = await put(`voice-memos/${Date.now()}-${voiceMemo.name}`, voiceMemo, {
+          access: 'public',
+        })
+        
+        voiceMemoUrl = blob.url
+        console.log('✅ Voice memo uploaded successfully:', voiceMemoUrl)
+        
+      } catch (error) {
+        console.error('❌ Error uploading voice memo:', error)
+        // Continue with submission even if upload fails
+      }
+    }
+
+    // Create content with voice memo indication
     let finalContent = content
     if (voiceMemo) {
-      console.log('🎤 Voice memo received:', voiceMemo.name, voiceMemo.size, 'bytes')
-      finalContent = `${content}\n\n🎤 Voice memo recorded: ${voiceMemo.name} (${(voiceMemo.size / 1024).toFixed(1)}KB)`
+      finalContent = voiceMemoUrl 
+        ? `${content}\n\n🎤 Voice memo: ${voiceMemo.name} (${(voiceMemo.size / 1024).toFixed(1)}KB)`
+        : `${content}\n\n🎤 Voice memo recorded: ${voiceMemo.name} (upload failed)`
     }
 
     // Create the record for the new table structure
@@ -88,12 +108,17 @@ export async function POST(request: NextRequest) {
       fields: {
         'Content': finalContent,
         'Client Portal Subdomain': resolvedSubdomain, // Let Airtable lookup the client
-        'Type': isRequest ? 'Request' : 'Insights',
+        'Type': isPriorityRequest ? 'Request' : 'Insight',
         'Topic': topic,
-        'Priority': isRequest && isUrgent ? 'Urgent' : 'Normal',
-        'Status': 'New'
-        // TODO: Voice Memo attachment field would require file hosting service
-        // 'Voice Memo': voiceMemo ? [{ url: 'https://your-storage-service.com/file-url' }] : null
+        'Priority': isPriorityRequest ? 'Urgent' : 'Normal',
+        'Status': 'New',
+        // Add voice memo attachment if uploaded successfully
+        ...(voiceMemoUrl && { 
+          'Voice Memo': [{ 
+            url: voiceMemoUrl,
+            filename: voiceMemo?.name || 'voice-memo.webm'
+          }] 
+        })
       }
     }
 
@@ -172,19 +197,91 @@ export async function POST(request: NextRequest) {
     console.log({
       subdomain: resolvedSubdomain,
       contentLength: content.length,
-      type: isRequest ? 'Request' : 'Insights',
-      priority: isRequest && isUrgent ? 'Urgent' : 'Normal',
+      type: isPriorityRequest ? 'Request' : 'Insight',
+      priority: isPriorityRequest ? 'Urgent' : 'Normal',
       deviceType: deviceType || 'unknown',
       recordId: airtableResult.id
     })
+
+    // Trigger transcription if voice memo was uploaded successfully
+    console.log('🔍 Environment check (before if condition):')
+    console.log('- Voice memo URL:', voiceMemoUrl ? 'Present' : 'Missing')
+    console.log('- OpenAI API key:', process.env.OPENAI_API_KEY ? 'Present' : 'Missing')
+    console.log('- VERCEL_URL:', process.env.VERCEL_URL || 'Not set')
+    
+    if (voiceMemoUrl && process.env.OPENAI_API_KEY) {
+      console.log('🎯 Triggering automatic transcription...')
+      console.log('🔍 Environment check:')
+      console.log('- Voice memo URL:', voiceMemoUrl ? 'Present' : 'Missing')
+      console.log('- OpenAI API key:', process.env.OPENAI_API_KEY ? 'Present' : 'Missing')
+      console.log('- VERCEL_URL:', process.env.VERCEL_URL || 'Not set')
+      
+      try {
+        // Dynamically determine the transcription URL from the current request
+        let transcribeUrl: string
+        
+        // In production, use the host from the request or Vercel URL environment variables
+        const host = request.headers.get('host')
+        const protocol = request.headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https')
+        
+        if (host) {
+          transcribeUrl = `${protocol}://${host}/api/transcribe`
+        } else {
+          // Fallback to VERCEL_URL if host header is not available
+          const vercelUrl = process.env.VERCEL_URL || 'localhost:3000'
+          transcribeUrl = `https://${vercelUrl}/api/transcribe`
+        }
+        
+        console.log('🔗 Transcription URL:', transcribeUrl)
+        
+        const transcriptionPromise = fetch(transcribeUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            recordId: airtableResult.id,
+            voiceMemoDLUrl: voiceMemoUrl
+          })
+        }).then(async (response) => {
+          console.log('📡 Transcription request response status:', response.status)
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Transcription request failed:', response.status, errorText)
+            throw new Error(`Transcription failed: ${response.status} - ${errorText}`)
+          }
+          const result = await response.json()
+          console.log('✅ Transcription request successful:', result)
+          return result
+        }).catch(error => {
+          console.error('❌ Background transcription failed:', error)
+          console.error('❌ Error details:', {
+            message: error.message,
+            stack: error.stack,
+            transcribeUrl,
+            recordId: airtableResult.id,
+            voiceMemoUrl
+          })
+          // Don't fail the main request if transcription fails
+        })
+        
+        // Don't await - let it run in background
+        void transcriptionPromise
+        console.log('🚀 Transcription triggered in background')
+      } catch (error) {
+        console.error('❌ Failed to trigger transcription:', error)
+        // Don't fail the main request if transcription trigger fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Submission successful',
       subdomain: resolvedSubdomain,
       recordId: airtableResult.id,
-      type: isRequest ? 'Request' : 'Insights',
-      priority: isRequest && isUrgent ? 'Urgent' : 'Normal'
+      type: isPriorityRequest ? 'Request' : 'Insight',
+      priority: isPriorityRequest ? 'Urgent' : 'Normal',
+      transcriptionTriggered: !!(voiceMemoUrl && process.env.OPENAI_API_KEY)
     })
 
   } catch (error) {

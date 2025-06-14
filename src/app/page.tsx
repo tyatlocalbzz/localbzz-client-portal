@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent } from '@/components/ui/card'
 import { Mic, Send, CheckCircle, AlertCircle, AlertTriangle, Upload, X, FileText, Image, Film, Square, Play, Pause } from 'lucide-react'
+import Navigation from '@/components/Navigation'
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({ 
   subsets: ['latin'],
-  weight: '900', // Black weight
+  weight: '900',
   variable: '--font-montserrat'
 })
 
@@ -18,11 +18,19 @@ interface SubmissionState {
   message?: string
 }
 
+interface ClientInfo {
+  id: string
+  name: string
+  services: string[]
+  status: string
+  subdomain: string
+}
+
 export default function IdeaSubmissionPage() {
   const [subdomain, setSubdomain] = useState<string>('')
+  const [clientInfo, setClientInfo] = useState<ClientInfo | null>(null)
   const [requestText, setRequestText] = useState<string>('')
-  const [isRequest, setIsRequest] = useState<boolean>(false)
-  const [isUrgent, setIsUrgent] = useState<boolean>(false)
+  const [isPriorityRequest, setIsPriorityRequest] = useState<boolean>(false)
   const [submission, setSubmission] = useState<SubmissionState>({ status: 'idle' })
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   
@@ -41,30 +49,60 @@ export default function IdeaSubmissionPage() {
     
     let extractedSubdomain = 'demo'
     
-    console.log('🌐 Frontend subdomain extraction:')
-    console.log('- Hostname:', hostname)
-    console.log('- Parts:', parts)
-    
     if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('vercel.app')) {
       // Production subdomain e.g., "acme.localbzz.com" -> "acme"
       extractedSubdomain = parts[0]
-      console.log('- Production subdomain detected:', extractedSubdomain)
     } else if (hostname.includes('localhost') || hostname.includes('vercel.app')) {
       // Development - check for query parameter or default to demo
       const urlParams = new URLSearchParams(window.location.search)
       const clientParam = urlParams.get('client')
       if (clientParam) {
         extractedSubdomain = clientParam
-        console.log('- Using client from URL parameter:', extractedSubdomain)
       } else {
         extractedSubdomain = 'demo'
-        console.log('- Using default subdomain for localhost:', extractedSubdomain)
       }
     }
     
-    console.log('- Final subdomain:', extractedSubdomain)
     setSubdomain(extractedSubdomain)
+    
+    // Fetch client info
+    fetchClientInfo(extractedSubdomain)
+
+    // Set CSS custom property for accurate viewport height on mobile
+    const setViewportHeight = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    // Set initial value
+    setViewportHeight();
+
+    // Update on resize (when mobile browser UI changes)
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+
+    return () => {
+      window.removeEventListener('resize', setViewportHeight);
+      window.removeEventListener('orientationchange', setViewportHeight);
+    };
   }, [])
+
+  const fetchClientInfo = async (subdomainToFetch: string) => {
+    try {
+      const response = await fetch(`/api/client-info?subdomain=${encodeURIComponent(subdomainToFetch)}`)
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        setClientInfo(data.client)
+      } else {
+        // Still continue with demo/default experience
+        setClientInfo(null)
+      }
+    } catch (error) {
+      console.error('💥 Error fetching client info:', error)
+      setClientInfo(null)
+    }
+  }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -141,12 +179,21 @@ export default function IdeaSubmissionPage() {
       formData.append('content', requestText.trim() || `[Voice memo recorded - ${formatDuration(recordingDuration)}]`)
       formData.append('subdomain', subdomain)
       formData.append('deviceType', /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop')
-      formData.append('isRequest', isRequest.toString())
-      formData.append('isUrgent', (isRequest && isUrgent).toString())
+      formData.append('isPriorityRequest', isPriorityRequest.toString())
       
       // Add voice recording if it exists
       if (voiceRecording) {
-        formData.append('voiceMemo', voiceRecording, `voice-memo-${Date.now()}.webm`)
+        // Determine file extension based on MIME type
+        let extension = 'webm'
+        if (voiceRecording.type.includes('mp4')) {
+          extension = 'mp4'
+        } else if (voiceRecording.type.includes('wav')) {
+          extension = 'wav'
+        } else if (voiceRecording.type.includes('ogg')) {
+          extension = 'ogg'
+        }
+        
+        formData.append('voiceMemo', voiceRecording, `voice-memo-${Date.now()}.${extension}`)
       }
       
       // Add other files
@@ -162,17 +209,16 @@ export default function IdeaSubmissionPage() {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        const messageType = isRequest 
-          ? `Your${isUrgent ? ' urgent' : ''} request has been submitted!`
-          : 'Thanks for sharing your insights!'
+        const messageType = isPriorityRequest 
+          ? 'Your request has been submitted! We\'ll use this to create amazing content together.'
+          : 'Thanks for sharing your insights! We\'ll use this to create amazing content together.'
         
         setSubmission({ 
           status: 'success', 
-          message: `${messageType} We'll use this to create amazing content together.` 
+          message: messageType 
         })
         setRequestText('')
-        setIsRequest(false)
-        setIsUrgent(false)
+        setIsPriorityRequest(false)
         setSelectedFiles([])
         deleteRecording() // Clear voice recording
         
@@ -208,9 +254,24 @@ export default function IdeaSubmissionPage() {
         } 
       })
       
-      const recorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
-      })
+      // Try different mime types in order of preference for OpenAI Whisper compatibility
+      let mimeType = 'audio/webm;codecs=opus'
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/webm'
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = 'audio/mp4'
+          if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'audio/wav'
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+              mimeType = '' // Let browser choose
+            }
+          }
+        }
+      }
+      
+      console.log('🎤 Using audio format:', mimeType || 'browser default')
+      
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
       
       const chunks: BlobPart[] = []
       
@@ -221,7 +282,16 @@ export default function IdeaSubmissionPage() {
       }
       
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: recorder.mimeType })
+        // Use explicit MIME type for better OpenAI compatibility
+        const audioType = recorder.mimeType || 'audio/webm'
+        const blob = new Blob(chunks, { type: audioType })
+        
+        console.log('📼 Recording finished:', {
+          size: blob.size,
+          type: blob.type,
+          duration: recordingDuration
+        })
+        
         setVoiceRecording(blob)
         stream.getTracks().forEach(track => track.stop())
       }
@@ -289,147 +359,155 @@ export default function IdeaSubmissionPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col overflow-hidden">
-      {/* Header - Compact for mobile */}
-      <header className="bg-gray-900 text-white py-3 px-4 shadow-lg flex-shrink-0">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col overflow-hidden" style={{ 
+      height: '100dvh', 
+      minHeight: 'calc(var(--vh, 1vh) * 100)',
+      paddingBottom: 'env(safe-area-inset-bottom)'
+    }}>
+      {/* Header */}
+      <header className="bg-gray-900 text-white py-3 px-4 flex-shrink-0 z-40">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-center">
-            <h1 className={`text-lg font-bold tracking-wider ${montserrat.className}`}>
+          <div className="flex items-center justify-center space-x-2">
+            <h1 className={`${montserrat.className} text-lg font-black`}>
               LOCAL BZZ
             </h1>
+            {clientInfo?.name && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="text-sm font-medium text-gray-300">{clientInfo.name}</span>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content - Flexible height */}
-      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full p-3 sm:p-4 overflow-hidden">
-        {/* Main Form - Takes remaining space */}
-        <Card className="flex-1 flex flex-col shadow-xl border-0 bg-white/95 backdrop-blur-sm rounded-xl overflow-hidden">
-          <CardContent className="flex-1 flex flex-col p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-hidden">
-            <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-3 sm:space-y-4 overflow-hidden">
-              {/* Request Input - Flexible */}
-              <div className="flex flex-col space-y-2 flex-shrink-0">
-                <div className="text-xs sm:text-sm text-gray-600">
-                  Share your insights, ideas, and industry knowledge with us! Your expertise helps us create content that truly connects with your audience and drives results.
-                </div>
-                <div className="relative flex-1">
-                  <Textarea
-                    id="idea-input"
-                    value={requestText}
-                    onChange={(e) => setRequestText(e.target.value)}
-                    placeholder="Example: 'Here's what's happening in our industry right now...' or 'Our customers have been asking about...' or 'We just learned something interesting that might make great content...'"
-                    className="min-h-[120px] max-h-[200px] resize-none text-sm leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-[#FCC931] rounded-xl bg-white/80"
-                    disabled={submission.status === 'submitting'}
-                  />
-                </div>
-                <div className="text-xs text-gray-500">
-                  {requestText.length} characters
-                </div>
-              </div>
+      {/* Navigation - Under header */}
+      <Navigation />
 
-              {/* Voice Recording Section - Compact */}
-              <div className="space-y-2 flex-shrink-0">
-                <label className="text-xs font-medium text-gray-700">
-                  Voice Memo
-                </label>
-                
-                {!voiceRecording ? (
-                  // Recording Controls - Compact
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-3 text-center bg-white/60">
-                    <div className="flex flex-col items-center space-y-2">
-                      <Button
-                        type="button"
-                        onClick={isRecording ? pauseResumeRecording : startRecording}
-                        className={`w-12 h-12 rounded-full p-0 transition-all shadow-lg ${
-                          isRecording && !isPaused
-                            ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                            : isRecording && isPaused
-                            ? 'bg-yellow-500 hover:bg-yellow-600'
-                            : 'bg-[#FCC931] hover:bg-[#e6b52a]'
-                        }`}
-                        disabled={submission.status === 'submitting'}
-                      >
-                        {isRecording && !isPaused ? (
-                          <Pause className="h-5 w-5 text-white" />
-                        ) : isRecording && isPaused ? (
-                          <Play className="h-5 w-5 text-white" />
-                        ) : (
-                          <Mic className="h-5 w-5 text-gray-800" />
-                        )}
-                      </Button>
-                      
-                      {isRecording && (
-                        <div className="flex items-center space-x-2">
-                          <div className="text-sm font-mono text-red-600 font-bold">
-                            {formatDuration(recordingDuration)}
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={stopRecording}
-                            variant="outline"
-                            size="sm"
-                            className="h-6 border-red-300 text-red-600 hover:bg-red-50 text-xs"
-                          >
-                            <Square className="h-2 w-2 mr-1" />
-                            Stop
-                          </Button>
-                        </div>
-                      )}
-                      
-                      <p className="text-xs text-gray-600">
-                        {isRecording && !isPaused
-                          ? 'Recording...'
+      {/* Main Content - Account for bottom elements height: nav (64px) + powered by (48px) = 112px */}
+      <div className="flex-1 max-w-2xl mx-auto w-full p-4 sm:p-6 flex flex-col overflow-hidden" style={{ 
+        paddingBottom: 'max(112px, calc(112px + env(safe-area-inset-bottom)))'
+      }}>
+        {/* Main Form - Fills available space */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-4 overflow-hidden">
+          {/* Text Input - Expands to fill available space */}
+          <div className="flex-1 flex flex-col min-h-0">
+            <Textarea
+              id="idea-input"
+              value={requestText}
+              onChange={(e) => setRequestText(e.target.value)}
+              placeholder="Your input, ideas, insights, and feedback are invaluable for creating content that represents you, connects with your audience, and humanizes your brand. Please share them here."
+              className="flex-1 resize-none text-base leading-relaxed border-2 border-gray-200 focus:border-[#FCC931] focus:ring-0 rounded-xl bg-white"
+              disabled={submission.status === 'submitting'}
+            />
+          </div>
+
+          {/* Voice Recording and File Upload - Fixed height */}
+          <div className={`gap-3 flex-shrink-0 ${isRecording ? 'space-y-3' : 'grid grid-cols-2'}`}>
+            {/* Voice Recording Section */}
+            <div className={isRecording ? 'col-span-2' : ''}>
+              {!voiceRecording ? (
+                <div className={`flex flex-col items-center bg-gray-50 rounded-xl transition-all ${
+                  isRecording 
+                    ? 'py-6 px-6 space-y-4' 
+                    : 'py-3 space-y-2 h-24 justify-center'
+                }`}>
+                  {/* Main recording button and controls */}
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button
+                      type="button"
+                      onClick={isRecording ? pauseResumeRecording : startRecording}
+                      className={`${isRecording ? 'w-12 h-12' : 'w-10 h-10'} rounded-full p-0 transition-all shadow-lg ${
+                        isRecording && !isPaused
+                          ? 'bg-red-500 hover:bg-red-600 animate-pulse'
                           : isRecording && isPaused
-                          ? 'Paused'
-                          : 'Tap to record'
-                        }
-                      </p>
-                    </div>
+                          ? 'bg-yellow-500 hover:bg-yellow-600'
+                          : 'bg-[#FCC931] hover:bg-[#e6b52a]'
+                      }`}
+                      disabled={submission.status === 'submitting'}
+                    >
+                      {isRecording && !isPaused ? (
+                        <Pause className="h-5 w-5 text-white" />
+                      ) : isRecording && isPaused ? (
+                        <Play className="h-5 w-5 text-white" />
+                      ) : (
+                        <Mic className="h-4 w-4 text-gray-800" />
+                      )}
+                    </Button>
+                    
+                    {isRecording && (
+                      <>
+                        {/* Timer */}
+                        <div className="text-2xl font-mono text-red-600 font-bold min-w-[80px] text-center">
+                          {formatDuration(recordingDuration)}
+                        </div>
+                        
+                        {/* Stop button */}
+                        <Button
+                          type="button"
+                          onClick={stopRecording}
+                          variant="outline"
+                          className="border-red-300 text-red-600 hover:bg-red-50 px-4 py-2"
+                        >
+                          <Square className="h-4 w-4 mr-2" />
+                          Stop
+                        </Button>
+                      </>
+                    )}
                   </div>
-                ) : (
-                  // Recorded Voice Memo - Compact
-                  <div className="border border-green-200 bg-green-50/80 rounded-xl p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="bg-green-500 rounded-full p-1.5">
-                          <Mic className="h-3 w-3 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-green-800">
-                            Voice Memo • {formatDuration(recordingDuration)}
-                          </p>
-                        </div>
+                  
+                  {/* Status text */}
+                  <p className={`text-gray-600 text-center ${isRecording ? 'text-base' : 'text-sm px-4'}`}>
+                    {isRecording && !isPaused
+                      ? 'Recording...'
+                      : isRecording && isPaused
+                      ? 'Paused - Tap to resume'
+                      : 'Tap to record'
+                    }
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-green-500 rounded-full p-2">
+                        <Mic className="h-4 w-4 text-white" />
                       </div>
-                      <Button
-                        type="button"
-                        onClick={deleteRecording}
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                      <div>
+                        <p className="text-sm font-semibold text-green-800">
+                          Recorded • {formatDuration(recordingDuration)}
+                        </p>
+                      </div>
                     </div>
+                    <Button
+                      type="button"
+                      onClick={deleteRecording}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
-              {/* File Upload Section - Compact */}
-              <div className="space-y-2 flex-shrink-0">
-                <label className="text-xs font-medium text-gray-600">
-                  Files
-                </label>
-                
-                {/* Upload Area - Smaller */}
+            {/* File Upload Section - Hidden when recording */}
+            {!isRecording && (
+              <div>
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-xl p-2 text-center hover:border-[#FCC931] transition-colors cursor-pointer bg-white/60"
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-3 text-center hover:border-[#FCC931] hover:bg-[#FCC931]/5 transition-all cursor-pointer group h-24 flex flex-col justify-center"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => document.getElementById('file-input')?.click()}
                 >
-                  <Upload className="h-4 w-4 text-gray-400 mx-auto mb-1" />
-                  <p className="text-xs text-gray-600">
-                    <span className="font-medium text-[#FCC931]">Tap to add</span> files
+                  <Upload className="h-5 w-5 text-gray-400 group-hover:text-[#FCC931] mx-auto mb-1 transition-colors" />
+                  <p className="text-xs font-medium text-gray-700 mb-1">
+                    Click or drag files
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Max 10MB each
                   </p>
                   <input
                     id="file-input"
@@ -441,13 +519,12 @@ export default function IdeaSubmissionPage() {
                   />
                 </div>
 
-                {/* Selected Files List - Compact */}
                 {selectedFiles.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500">
-                      {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}:
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-gray-900 mb-1">
+                      {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}
                     </p>
-                    <div className="max-h-16 overflow-y-auto space-y-1">
+                    <div className="space-y-1 max-h-16 overflow-y-auto">
                       {selectedFiles.map((file, index) => {
                         const getFileIcon = () => {
                           if (file.type.startsWith('image/')) return <Image className="h-3 w-3 text-blue-500" />
@@ -456,11 +533,11 @@ export default function IdeaSubmissionPage() {
                         }
 
                         return (
-                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50/80 rounded-lg">
-                            <div className="flex items-center space-x-2 flex-1 min-w-0">
+                          <div key={index} className="flex items-center justify-between p-1 bg-gray-50 rounded text-xs">
+                            <div className="flex items-center space-x-1 flex-1 min-w-0">
                               {getFileIcon()}
                               <div className="min-w-0 flex-1">
-                                <p className="text-xs font-medium text-gray-700 truncate">
+                                <p className="text-xs font-medium text-gray-900 truncate">
                                   {file.name}
                                 </p>
                               </div>
@@ -470,7 +547,7 @@ export default function IdeaSubmissionPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => removeFile(index)}
-                              className="h-5 w-5 p-0 text-gray-400 hover:text-red-500"
+                              className="text-gray-400 hover:text-red-500 p-0 h-4 w-4"
                             >
                               <X className="h-3 w-3" />
                             </Button>
@@ -481,104 +558,72 @@ export default function IdeaSubmissionPage() {
                   </div>
                 )}
               </div>
+            )}
+          </div>
 
-              {/* Request Type Selection - Compact */}
-              <div className="space-y-2 flex-shrink-0">
-                <div className="flex items-center space-x-2 p-2 bg-blue-50/80 border border-blue-200 rounded-xl">
-                  <input
-                    id="request-checkbox"
-                    type="checkbox"
-                    checked={isRequest}
-                    onChange={(e) => {
-                      setIsRequest(e.target.checked)
-                      if (!e.target.checked) setIsUrgent(false) // Clear urgent if not a request
-                    }}
-                    className="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="request-checkbox"
-                    className="text-xs font-medium text-blue-700 cursor-pointer select-none flex-1"
-                  >
-                    This is a request that needs action
-                  </label>
-                </div>
-
-                {/* Urgency Checkbox - Only show when isRequest is true */}
-                {isRequest && (
-                  <div className="flex items-center space-x-2 p-2 bg-orange-50/80 border border-orange-200 rounded-xl">
-                    <input
-                      id="urgent-checkbox"
-                      type="checkbox"
-                      checked={isUrgent}
-                      onChange={(e) => setIsUrgent(e.target.checked)}
-                      className="h-4 w-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <AlertTriangle className="h-3 w-3 text-orange-600" />
-                    <label
-                      htmlFor="urgent-checkbox"
-                      className="text-xs font-medium text-orange-700 cursor-pointer select-none flex-1"
-                    >
-                      Time-sensitive - prioritize this!
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              {/* Submit Button - Fixed at bottom */}
-              <div className="flex-shrink-0 pt-2">
-                <Button
-                  type="submit"
-                  className={`w-full py-3 text-sm font-bold transition-all rounded-xl border-0 shadow-lg ${
-                    isRequest && isUrgent 
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white' 
-                      : isRequest
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
-                      : 'bg-gradient-to-r from-[#FCC931] to-[#e6b52a] hover:from-[#e6b52a] hover:to-[#d4a428] text-gray-800'
-                  } ${montserrat.className}`}
-                  disabled={submission.status === 'submitting' || (!requestText.trim() && !voiceRecording)}
+          {/* Request Type Selection and Submit Button - Fixed at bottom */}
+          <div className="space-y-4 flex-shrink-0">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-xl border border-blue-200">
+                <input
+                  id="priority-checkbox"
+                  type="checkbox"
+                  checked={isPriorityRequest}
+                  onChange={(e) => setIsPriorityRequest(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="priority-checkbox"
+                  className="text-sm font-medium text-blue-700 cursor-pointer select-none flex-1"
                 >
-                  {submission.status === 'submitting' ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      {isRequest && isUrgent ? (
-                        <AlertTriangle className="h-4 w-4 mr-2" />
-                      ) : (
-                        <Send className="h-4 w-4 mr-2" />
-                      )}
-                      {isRequest ? 'Submit Request' : 'Share Insights'}
-                    </>
-                  )}
-                </Button>
+                  This is a priority request
+                </label>
               </div>
+            </div>
 
-              {/* Status Messages */}
-              {submission.status === 'success' && (
-                <div className="flex items-center space-x-2 p-3 bg-green-50/80 border border-green-200 rounded-xl flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <p className="text-xs text-green-700">{submission.message}</p>
-                </div>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className={`w-full h-[50px] text-base font-bold transition-all rounded-xl border-0 shadow-lg ${
+                isPriorityRequest
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
+                  : 'bg-gradient-to-r from-[#FCC931] to-[#e6b52a] hover:from-[#e6b52a] hover:to-[#d4a428] text-gray-800'
+              }`}
+              disabled={submission.status === 'submitting' || (!requestText.trim() && !voiceRecording)}
+            >
+              {submission.status === 'submitting' ? (
+                <>
+                  <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-current mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  {isPriorityRequest ? (
+                    <AlertTriangle className="h-7 w-7 mr-2" />
+                  ) : (
+                    <Send className="h-7 w-7 mr-2" />
+                  )}
+                  {isPriorityRequest ? 'Submit Request' : 'Share With Local Bzz'}
+                </>
               )}
+            </Button>
+          </div>
 
-              {submission.status === 'error' && (
-                <div className="flex items-center space-x-2 p-3 bg-red-50/80 border border-red-200 rounded-xl flex-shrink-0">
-                  <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                  <p className="text-xs text-red-700">{submission.message}</p>
-                </div>
-              )}
-            </form>
-          </CardContent>
-        </Card>
+          {/* Status Messages */}
+          {submission.status === 'success' && (
+            <div className="flex items-center space-x-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <p className="text-sm text-green-700">{submission.message}</p>
+            </div>
+          )}
 
-        {/* Footer - Compact */}
-        <div className="text-center py-2 flex-shrink-0">
-          <p className="text-xs text-gray-400">
-            <span className={`font-bold ${montserrat.className}`}>Local Bzz</span> Portal
-          </p>
-        </div>
+          {submission.status === 'error' && (
+            <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <p className="text-sm text-red-700">{submission.message}</p>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   )
