@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
 
-  // Skip middleware for API routes, static files, and special Next.js routes
+  // Skip middleware for API routes and static files
   if (
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/') ||
@@ -15,22 +15,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Extract subdomain
+  // Extract subdomain and redirect to portal if on subdomain
   const parts = hostname.split('.')
   
-  // Handle subdomain routing for production
   if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('vercel.app')) {
     const subdomain = parts[0]
     
-    // Add subdomain info to headers for the app to access
-    const response = NextResponse.next()
-    response.headers.set('x-subdomain', subdomain)
-    response.headers.set('x-hostname', hostname)
-    
-    return response
+    // If not already on portal route, redirect to portal
+    if (!url.pathname.startsWith('/portal/')) {
+      url.pathname = `/portal/${subdomain}`
+      return NextResponse.redirect(url)
+    }
   }
 
-  // For localhost and Vercel preview deployments, pass through normally
   return NextResponse.next()
 }
 

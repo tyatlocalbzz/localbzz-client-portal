@@ -1,20 +1,14 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Local Bzz Portal",
-  description: "Client communication portal for Local Bzz",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover'
+  title: 'Client Portal',
+  description: 'Submit your requests and feedback',
+  robots: {
+    index: false,
+    follow: false,
   },
-};
+}
 
 export default function RootLayout({
   children,
@@ -23,9 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+      </head>
+      <body>
         {children}
       </body>
     </html>
-  );
+  )
 }

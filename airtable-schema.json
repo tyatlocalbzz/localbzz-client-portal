@@ -1,0 +1,2151 @@
+{
+  "baseId": "appovPmfaZS6JKOCr",
+  "fetchedAt": "2025-06-14T18:04:12.963Z",
+  "tablesCount": 7,
+  "tables": [
+    {
+      "id": "tblSKxOOB2SrEPI1V",
+      "name": "Clients",
+      "description": null,
+      "fieldsCount": 34,
+      "fields": [
+        {
+          "id": "fldkIDpIJxMq9siG6",
+          "name": "Client Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fld7Imr4GrrWENSDe",
+          "name": "Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "seleKZTgwaQx5ifxj",
+                "name": "Pitching",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selt4aC4t5qkzO7no",
+                "name": "Active",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel2nLyp9wgBZTfUC",
+                "name": "Inactive",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldClpvmf5ViSKLx2",
+          "name": "Primary Contact Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldtcUkMFiA2WcTX5",
+          "name": "Primary Contact Email",
+          "type": "email",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldSlGCJhdB62nNly",
+          "name": "Primary Contact Phone",
+          "type": "phoneNumber",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldPFwcmq9aoOxiFI",
+          "name": "Default Shoot Location",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldBJqDIOgMI4lTuo",
+          "name": "Services",
+          "type": "multipleSelects",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selFQq58mGkgRPlA9",
+                "name": "Content",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selbmcy9zd1uHuVbC",
+                "name": "Social Management",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selRfAmqWC52yLjgL",
+                "name": "Website",
+                "color": "tealLight2"
+              },
+              {
+                "id": "sellx3XLNlKUNrv1C",
+                "name": "Email",
+                "color": "greenLight2"
+              },
+              {
+                "id": "sel3g5bWaC5fxb0so",
+                "name": "Paid Ads",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selFm9Fv3tQg2vg5k",
+                "name": "Social Events",
+                "color": "orangeLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fld8JlsvKGnnJxX5V",
+          "name": "Shoot Frequency",
+          "type": "singleSelect",
+          "description": "Bi-Monthly",
+          "options": {
+            "choices": [
+              {
+                "id": "selKKP75QjSk0kOMz",
+                "name": "Monthly",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selvvNaUCXLfaANE8",
+                "name": "Quarterly",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selPg7IqDTM8YIpPK",
+                "name": "Per Project",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selnNuGDFgl6VAYbj",
+                "name": "Ad Hoc",
+                "color": "greenLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldZRCA13LQVH5aXe",
+          "name": "_FrequencyInDays",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "SWITCH(\n    {fld8JlsvKGnnJxX5V},\n    \"Monthly\", 30,\n    \"Bi-Monthly\", 60,\n    \"Quarterly\", 91,  \n    \"Semi-Annually\", 182, \n    \"Annually\", 365,\n    0\n)",
+            "referencedFieldIds": [
+              "fld8JlsvKGnnJxX5V"
+            ],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "fldJor0zoFJvMGFWQ",
+          "name": "Default Reel Count",
+          "type": "number",
+          "description": null,
+          "options": {
+            "precision": 0
+          }
+        },
+        {
+          "id": "fldOr3P8Z1EgIYQiU",
+          "name": "Default Photo Count",
+          "type": "number",
+          "description": null,
+          "options": {
+            "precision": 0
+          }
+        },
+        {
+          "id": "fldBRhzQKLjuzPgyu",
+          "name": "Default Carousel Count",
+          "type": "number",
+          "description": null,
+          "options": {
+            "precision": 0
+          }
+        },
+        {
+          "id": "fldZnCcTaWTTFWbDf",
+          "name": "ClientFolderCreationStatus",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selKTX3dHnXjwi1BT",
+                "name": "Pending",
+                "color": "yellowBright"
+              },
+              {
+                "id": "selriaLX3O1L4JTz1",
+                "name": "Created",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selF3ULWTT33TTIQc",
+                "name": "Error",
+                "color": "redBright"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldrCODxXgPCVDKzl",
+          "name": "MainClientDriveFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldMooIx65lBaEFCV",
+          "name": "ContentFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldoz2b2WgXe7H7RP",
+          "name": "AdminFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldkRBAEwza8kFLcB",
+          "name": "StrategyFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "flddHz3hESlXAREhz",
+          "name": "Ready-To-PostFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldvRCs56iiq1iWi1",
+          "name": "Notes",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldFlAUXMq2Thcekn",
+          "name": "Contract",
+          "type": "multipleAttachments",
+          "description": null,
+          "options": {
+            "isReversed": false
+          }
+        },
+        {
+          "id": "fld0okmbj2iqC2jtH",
+          "name": "ContractUploadStatus",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selTBhGuncDmxwfMY",
+                "name": "Pending",
+                "color": "yellowBright"
+              },
+              {
+                "id": "selVS6k1Or6417pQt",
+                "name": "Uploaded",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selaZW1acLU2Z9Hzr",
+                "name": "Error",
+                "color": "redBright"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fld4zNzSOxAAFa98G",
+          "name": "Contract Link",
+          "type": "url",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldXThtgcndaRfDg8",
+          "name": "Thumbnail Logo",
+          "type": "multipleAttachments",
+          "description": null,
+          "options": {
+            "isReversed": false
+          }
+        },
+        {
+          "id": "fldJTkK6rIwUlSAcl",
+          "name": "Shoots",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblIcLzkF1zhPU4gk",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldXHls1LvlgAdWGu",
+            "viewIdForRecordSelection": "viwwGeDDBOv5eHKdm"
+          }
+        },
+        {
+          "id": "fldE1UpzLDJWwcZvE",
+          "name": "_LastShootDate",
+          "type": "rollup",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldJTkK6rIwUlSAcl",
+            "fieldIdInLinkedTable": "fldGCiisBSflyXjHE",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "America/Chicago"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldDWvKStWsLmWrAh",
+          "name": "_NextTheoreticalShootDate",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n    AND({fldE1UpzLDJWwcZvE}, {fldZRCA13LQVH5aXe} > 0),\n    DATEADD({fldE1UpzLDJWwcZvE}, {fldZRCA13LQVH5aXe}, 'days')\n)",
+            "referencedFieldIds": [
+              "fldE1UpzLDJWwcZvE",
+              "fldZRCA13LQVH5aXe"
+            ],
+            "result": {
+              "type": "date",
+              "options": {
+                "dateFormat": {
+                  "name": "us",
+                  "format": "M/D/YYYY"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fldyDWN98OVtqHwVa",
+          "name": "_SchedulingWindowStart",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldDWvKStWsLmWrAh}, DATEADD({fldDWvKStWsLmWrAh}, -14, 'days'))",
+            "referencedFieldIds": [
+              "fldDWvKStWsLmWrAh"
+            ],
+            "result": {
+              "type": "date",
+              "options": {
+                "dateFormat": {
+                  "name": "us",
+                  "format": "M/D/YYYY"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fldvvznCJrpCdWFw4",
+          "name": "_UpcomingShootsCount",
+          "type": "rollup",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldJTkK6rIwUlSAcl",
+            "fieldIdInLinkedTable": "fldKbw9Cu7sts80xg",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "fldhDIu9QTUq6EL9z",
+          "name": "ActionNeeded: Schedule Shoot?",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n    AND(\n        {fldDWvKStWsLmWrAh}, \n        {fld8JlsvKGnnJxX5V}, \n        NOT(OR({fld8JlsvKGnnJxX5V} = \"Per Project\", {fld8JlsvKGnnJxX5V} = \"Ad Hoc\")), \n        IS_AFTER(TODAY(), {fldyDWN98OVtqHwVa}), \n        IS_BEFORE(TODAY(), {fldDWvKStWsLmWrAh}), \n        OR(NOT({fldvvznCJrpCdWFw4}), {fldvvznCJrpCdWFw4} = 0) \n    ),\n    \"🔴 Needs Scheduling\", \n    \"✅ OK\" \n)",
+            "referencedFieldIds": [
+              "fldDWvKStWsLmWrAh",
+              "fld8JlsvKGnnJxX5V",
+              "fldyDWN98OVtqHwVa",
+              "fldvvznCJrpCdWFw4"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fld91L2YLfJBHrBTa",
+          "name": "Deliverables",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblACm9VZZbgUFz36",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldZx1matIx2U8p8g",
+            "viewIdForRecordSelection": "viwanVQUTSaeVFnDd"
+          }
+        },
+        {
+          "id": "fld1RGrQf4pesliui",
+          "name": "Tasks",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblrh5aJSZwYhajpp",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld9UIAR9qAGkLhR0"
+          }
+        },
+        {
+          "id": "fldntpXLNlbgHBUIs",
+          "name": "Client Portal Subdomain",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldaoQjJPJsEC3wpI",
+          "name": "ClientID_Airtable",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "RECORD_ID()",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldKNkI8C8USAVKfP",
+          "name": "Client Portal",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblSasZtTICsNl4GU",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldSVGUgPZfJq7jnv"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tblk433XjuVlgp1Kq",
+      "name": "Team Members",
+      "description": null,
+      "fieldsCount": 10,
+      "fields": [
+        {
+          "id": "fld1ElkHzuCg7hjFZ",
+          "name": "Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldYeMkb2kqZCB9C6",
+          "name": "TeamMemberID",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "RECORD_ID()",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldy5nbAbdj7etkIA",
+          "name": "Email",
+          "type": "email",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldToOU6L3lNsTPdE",
+          "name": "Roles",
+          "type": "multipleSelects",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selMwlfELWvPwOQrr",
+                "name": "Editor",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel64N7ngMvhyJ89o",
+                "name": "Scheduler",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selZs5kbMAcaTVDNK",
+                "name": "Content Creator",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldfSeIGYAiIgwzIo",
+          "name": "Phone",
+          "type": "phoneNumber",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldZxZfeEKCmrzWGp",
+          "name": "Deliverables",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblACm9VZZbgUFz36",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldEGPvK4Y1In25LI"
+          }
+        },
+        {
+          "id": "fldbGQMSkjwKsqJdK",
+          "name": "Shoots",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblIcLzkF1zhPU4gk",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldeO3Oz1ViLHnrOT"
+          }
+        },
+        {
+          "id": "fldwGDwolnGSRlMSV",
+          "name": "Shoots 2",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblIcLzkF1zhPU4gk",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldMZyqLAwfhkWUgl"
+          }
+        },
+        {
+          "id": "fldSpILeydlZOgcMn",
+          "name": "Deliverables 2",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblACm9VZZbgUFz36",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldX9ToUHBiBFkl6C"
+          }
+        },
+        {
+          "id": "fldok347WYttVWGof",
+          "name": "Tasks",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblrh5aJSZwYhajpp",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldQeNZbY6wOiGqyO"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tblIcLzkF1zhPU4gk",
+      "name": "Shoots",
+      "description": null,
+      "fieldsCount": 31,
+      "fields": [
+        {
+          "id": "fldKbw9Cu7sts80xg",
+          "name": "Shoot Title",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "TRIM(\n    IF(\n        {fldXHls1LvlgAdWGu}, \n        {fldZGoswsIqpILQuJ} & \" - \", \n        \"Untitled Shoot - \"\n    ) &\n    IF(\n        {fldGCiisBSflyXjHE}, \n        DATETIME_FORMAT({fldGCiisBSflyXjHE}, 'YYYY-MM-DD'), \n        \"\"\n    )\n)",
+            "referencedFieldIds": [
+              "fldXHls1LvlgAdWGu",
+              "fldZGoswsIqpILQuJ",
+              "fldGCiisBSflyXjHE"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldXHls1LvlgAdWGu",
+          "name": "Client Link",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblSKxOOB2SrEPI1V",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldJTkK6rIwUlSAcl"
+          }
+        },
+        {
+          "id": "fldGCiisBSflyXjHE",
+          "name": "Shoot Start",
+          "type": "dateTime",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "America/Chicago"
+          }
+        },
+        {
+          "id": "fldL2F0xph5jqbPIC",
+          "name": "Duration",
+          "type": "duration",
+          "description": null,
+          "options": {
+            "durationFormat": "h:mm"
+          }
+        },
+        {
+          "id": "fldpYBPQZnweMnqBB",
+          "name": "Shoot End",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "DATEADD({fldGCiisBSflyXjHE}, {fldL2F0xph5jqbPIC}, 'seconds')",
+            "referencedFieldIds": [
+              "fldGCiisBSflyXjHE",
+              "fldL2F0xph5jqbPIC"
+            ],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "America/Chicago"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldsFvHFR6AwMif7Q",
+          "name": "Location",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n    {fld1R7dYRcJu7fwRj}, \n    {fldYlFEIKpKhDQmjE}, \n    {fld6gDeqZKxHIy9eG}\n)",
+            "referencedFieldIds": [
+              "fld1R7dYRcJu7fwRj",
+              "fldYlFEIKpKhDQmjE",
+              "fld6gDeqZKxHIy9eG"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldk6GrcMpJs5HIoN",
+          "name": "Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "sel01fzEd9qLFV9rM",
+                "name": "Scheduled",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selHprExeV3iNlai0",
+                "name": "Postponed",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "sellhB0mWtOOVZSex",
+                "name": "Completed",
+                "color": "redLight2"
+              },
+              {
+                "id": "selmOt5oCQLpXk1Aj",
+                "name": "Cancelled",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldeO3Oz1ViLHnrOT",
+          "name": "Primary Creator",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblk433XjuVlgp1Kq",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldbGQMSkjwKsqJdK"
+          }
+        },
+        {
+          "id": "fld25XKVCCi3iBnsC",
+          "name": "_PrimaryCreatorEmailLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldeO3Oz1ViLHnrOT",
+            "fieldIdInLinkedTable": "fldy5nbAbdj7etkIA",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldMZyqLAwfhkWUgl",
+          "name": "Other Team Members",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblk433XjuVlgp1Kq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldwGDwolnGSRlMSV"
+          }
+        },
+        {
+          "id": "fldi3nyeHbwqCL3k4",
+          "name": "_OtherTeamMemberEmailsLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldMZyqLAwfhkWUgl",
+            "fieldIdInLinkedTable": "fldy5nbAbdj7etkIA",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldA2TWd2NU2FrLm7",
+          "name": "_AllShootMemberEmailsRollup",
+          "type": "formula",
+          "description": "A formula field that rolls up the email addresses of the primary creator and other team members associated with the shoot",
+          "options": {
+            "isValid": true,
+            "formula": "ARRAYJOIN(\n  ARRAYUNIQUE(\n    ARRAYCOMPACT(\n      CONCATENATE(\n        {fld25XKVCCi3iBnsC},\n        IF(LEN({fldi3nyeHbwqCL3k4}) > 0, \",\" & {fldi3nyeHbwqCL3k4}, \"\")\n      )\n    )\n  ),\n  \",\"\n)",
+            "referencedFieldIds": [
+              "fld25XKVCCi3iBnsC",
+              "fldi3nyeHbwqCL3k4"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldIl8cRaSjf8P0Cr",
+          "name": "Notes",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fld3ejB8jPSqChW0O",
+          "name": "Calendar Event Link",
+          "type": "url",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldA9Qas1AtOTdTKN",
+          "name": "Drive Folder Link",
+          "type": "url",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldFtWSIv90JaNDc3",
+          "name": "GoogleCalendarEventID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldgmhUXULMhSZtvc",
+          "name": "Deliverables",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblACm9VZZbgUFz36",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldm4BztxFZbRYVE5"
+          }
+        },
+        {
+          "id": "fldS1LU7zmzqArx4I",
+          "name": "Create Default Deliverables?",
+          "type": "checkbox",
+          "description": null,
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          }
+        },
+        {
+          "id": "fld1R7dYRcJu7fwRj",
+          "name": "Use Default Location",
+          "type": "checkbox",
+          "description": null,
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          }
+        },
+        {
+          "id": "fldWJvppkZypPps6H",
+          "name": "Master Calendar",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldcrNpTj444Xgvfc",
+          "name": "ShootID_Airtable",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "RECORD_ID()",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldUJSpJvAPUW6Ega",
+          "name": "Client Portal Subdomain (from Client Link)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldntpXLNlbgHBUIs",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldG8dqfA0NE9TGXk",
+          "name": "Primary Contact Email (from Client Link)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldtcUkMFiA2WcTX5",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldyocPmdxY7Qv5Ny",
+          "name": "Primary Contact Phone (from Client Link)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldSlGCJhdB62nNly",
+            "result": {
+              "type": "phoneNumber"
+            }
+          }
+        },
+        {
+          "id": "fldYlFEIKpKhDQmjE",
+          "name": "_ClientDefaultLocationLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldPFwcmq9aoOxiFI",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldVIyfV2Brd4JLqN",
+          "name": "ShootDriveFolderID",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldTn35pBgOcNRblX",
+          "name": "_ContentShootsFolderLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldMooIx65lBaEFCV",
+            "result": {
+              "type": "url"
+            }
+          }
+        },
+        {
+          "id": "fldWPaFVU0lfipsNQ",
+          "name": "_ClientFolderID",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldrCODxXgPCVDKzl",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldZGoswsIqpILQuJ",
+          "name": "_ClientNameLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldXHls1LvlgAdWGu",
+            "fieldIdInLinkedTable": "fldkIDpIJxMq9siG6",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fld6gDeqZKxHIy9eG",
+          "name": "Shoot Specific Location",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldYsvTqmjWNISoSD",
+          "name": "Tasks",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblrh5aJSZwYhajpp",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldiILfocPHmQOcZA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tblACm9VZZbgUFz36",
+      "name": "Deliverables",
+      "description": null,
+      "fieldsCount": 28,
+      "fields": [
+        {
+          "id": "fldNXkUDZ0JQJhfBA",
+          "name": "Deliverable Title",
+          "type": "formula",
+          "description": "Generates a title for the deliverable by combining the client name and the deliverable type, or using a default 'Untitled Deliverable' if either is missing.",
+          "options": {
+            "isValid": true,
+            "formula": "TRIM(\n    IF(\n        {fld3vKeXqu5ysSxku},\n        {fld3vKeXqu5ysSxku} & \"\", \n        \"Deliverable\" \n    ) & \n    IF(\n        {fld9MZktmMXJttOQ4},\n        \" - \" & {fld9MZktmMXJttOQ4},\n        \"\" \n    ) &\n    \" (\" & \n    IF(\n        {fldAnEKOq4kPgwRsY},\n        DATETIME_FORMAT({fldAnEKOq4kPgwRsY}, 'YYYY-MM-DD'),\n        \"Unscheduled\"\n    ) &\n    \")\"\n)",
+            "referencedFieldIds": [
+              "fld3vKeXqu5ysSxku",
+              "fld9MZktmMXJttOQ4",
+              "fldAnEKOq4kPgwRsY"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldm4BztxFZbRYVE5",
+          "name": "Shoot",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblIcLzkF1zhPU4gk",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldgmhUXULMhSZtvc"
+          }
+        },
+        {
+          "id": "fldiR56gu9TzDDnNA",
+          "name": "Drive Folder ID (from Shoot)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldm4BztxFZbRYVE5",
+            "fieldIdInLinkedTable": "fldVIyfV2Brd4JLqN",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fld5qUPktanG5GqrU",
+          "name": "Notes",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldZx1matIx2U8p8g",
+          "name": "Client",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblSKxOOB2SrEPI1V",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld91L2YLfJBHrBTa"
+          }
+        },
+        {
+          "id": "fldnn3NkBfbKb9jx0",
+          "name": "Services (from Client)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZx1matIx2U8p8g",
+            "fieldIdInLinkedTable": "fldBJqDIOgMI4lTuo",
+            "result": {
+              "type": "multipleSelects",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selFQq58mGkgRPlA9",
+                    "name": "Content",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selbmcy9zd1uHuVbC",
+                    "name": "Social Management",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selRfAmqWC52yLjgL",
+                    "name": "Website",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "sellx3XLNlKUNrv1C",
+                    "name": "Email",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "sel3g5bWaC5fxb0so",
+                    "name": "Paid Ads",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selFm9Fv3tQg2vg5k",
+                    "name": "Social Events",
+                    "color": "orangeLight2"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "fldd2Q7W3kFmRONKu",
+          "name": "Main Drive Folder ID (from Client)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZx1matIx2U8p8g",
+            "fieldIdInLinkedTable": "fldrCODxXgPCVDKzl",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldqsfWHmGp5PvLv0",
+          "name": "Content Shoots Folder ID (from Client)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZx1matIx2U8p8g",
+            "fieldIdInLinkedTable": "fldMooIx65lBaEFCV",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fld3vKeXqu5ysSxku",
+          "name": "Deliverable Type",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selEqt6wBJXQ67UEG",
+                "name": "Reel",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selpaT4eSGii372Fq",
+                "name": "Photo",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selMthXvtB07jAquK",
+                "name": "Carousel",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selKpMuVbhKuDEyrP",
+                "name": "Other",
+                "color": "greenLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldLOeWN58vCq9lk5",
+          "name": "Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selozbHOCLeNxP7cJ",
+                "name": "To Do",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel3MIwC7zEnSadIP",
+                "name": "In Progress",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel1sHHFiTAFF3u6k",
+                "name": "Needs Review",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selpC14ONXcZuyJ0D",
+                "name": "Ready-To-Post",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selykDuHfVMIkRgot",
+                "name": "Delivered",
+                "color": "yellowLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldEGPvK4Y1In25LI",
+          "name": "Assigned To",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblk433XjuVlgp1Kq",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldZxZfeEKCmrzWGp"
+          }
+        },
+        {
+          "id": "fldRguusWR4rtxRpi",
+          "name": "Email (from Assigned To) 2",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldEGPvK4Y1In25LI",
+            "fieldIdInLinkedTable": "fldy5nbAbdj7etkIA",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldAnEKOq4kPgwRsY",
+          "name": "Due Date",
+          "type": "dateTime",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "America/Chicago"
+          }
+        },
+        {
+          "id": "fldHdJrCQfTdnTrqB",
+          "name": "File Link",
+          "type": "url",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldX9ToUHBiBFkl6C",
+          "name": "Initial Assignee (Creator)",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblk433XjuVlgp1Kq",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldSpILeydlZOgcMn"
+          }
+        },
+        {
+          "id": "fld6GdNNCgSg6EvWa",
+          "name": "Created",
+          "type": "createdTime",
+          "description": null,
+          "options": {
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "America/Chicago"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldd9EPXwZxxKkiZp",
+          "name": "Last Modified",
+          "type": "lastModifiedTime",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "client"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldRhdJ9fmc46zMg4",
+          "name": "Last Modified Time of Assigned To",
+          "type": "lastModifiedTime",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [
+              "fldEGPvK4Y1In25LI"
+            ],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "client"
+              }
+            }
+          }
+        },
+        {
+          "id": "fld19mNVJAXj2IpcF",
+          "name": "DeliveryFolderCreationStatus",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selW75pIX6tX4xOtO",
+                "name": "Created",
+                "color": "greenBright"
+              },
+              {
+                "id": "seloLWL5STLOTFMtb",
+                "name": "Not Created",
+                "color": "redBright"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fld9HFxhVxKWH0tFv",
+          "name": "Caption",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldP40xqzdrXBs5HV",
+          "name": "Posting Instructions",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldPvLdsPclI86g9I",
+          "name": "Shared with Client Date",
+          "type": "dateTime",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "America/Chicago"
+          }
+        },
+        {
+          "id": "fldPyistqtnqU7K8Z",
+          "name": "Tasks",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblrh5aJSZwYhajpp",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldyrya9vfYhElQ0x"
+          }
+        },
+        {
+          "id": "fldkm4rHdxFeq8z4J",
+          "name": "Master Calendar",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fld7EbJZmAPJpPeKM",
+          "name": "DeliverableID_Airtable",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "RECORD_ID()",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldlnJc4tT4O0gEtF",
+          "name": "Email (from Assigned To)",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldEGPvK4Y1In25LI",
+            "fieldIdInLinkedTable": "fldy5nbAbdj7etkIA",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldXDjUZ35FdtrTCQ",
+          "name": "_ShootTitleFromLink",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldm4BztxFZbRYVE5",
+            "fieldIdInLinkedTable": "fldKbw9Cu7sts80xg",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fld9MZktmMXJttOQ4",
+          "name": "_ClientNameFromLink",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZx1matIx2U8p8g",
+            "fieldIdInLinkedTable": "fldkIDpIJxMq9siG6",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tblxfY787gsAKnx0d",
+      "name": "Form Submissions",
+      "description": null,
+      "fieldsCount": 12,
+      "fields": [
+        {
+          "id": "fldJakEvOKmYe2fGu",
+          "name": "Email",
+          "type": "email",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldHKibKtiF4OBr30",
+          "name": "Request ID",
+          "type": "autoNumber",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldI4JnzBLy8UOsru",
+          "name": "Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldNUKhd6wInbBn1D",
+          "name": "Form Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldbbgvPtv9JR8EnI",
+          "name": "Business Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldnpK6OxrPsmkw0I",
+          "name": "Business URL",
+          "type": "url",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldiTpuTRNcrQEZEA",
+          "name": "Marketing Goals",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldOwvLG2BtF2UoE2",
+          "name": "How did you hear about us?",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldDqU5KILiSEeqfj",
+          "name": "Assignee",
+          "type": "singleCollaborator",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldvKcvc8CEJhgt3N",
+          "name": "Approval Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selQ6NnlGyDgbgIiZ",
+                "name": "Pending Approval",
+                "color": "redLight2"
+              },
+              {
+                "id": "selBdg2B1dhrPaPig",
+                "name": "Approved - Send Booking Email",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selkQMDTjnXIUbAWg",
+                "name": "Email Sent",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "seldwE1xZfD8Xmz39",
+                "name": "Rejected",
+                "color": "greenLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldTPkFrpEE4wm2bD",
+          "name": "Created",
+          "type": "createdTime",
+          "description": null,
+          "options": {
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "client"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldfAKI7cCEdSGzpZ",
+          "name": "Booking Link",
+          "type": "url",
+          "description": null,
+          "options": null
+        }
+      ]
+    },
+    {
+      "id": "tblrh5aJSZwYhajpp",
+      "name": "Tasks",
+      "description": null,
+      "fieldsCount": 23,
+      "fields": [
+        {
+          "id": "fldprQk15xhPMYR6T",
+          "name": "Task Name",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldQeNZbY6wOiGqyO",
+          "name": "Assigned To",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblk433XjuVlgp1Kq",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldok347WYttVWGof"
+          }
+        },
+        {
+          "id": "fldhmptodjnX7na6c",
+          "name": "Due Date",
+          "type": "date",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          }
+        },
+        {
+          "id": "fld6LN2JscsOCf3pG",
+          "name": "Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "seliVAklVTg9JaRVL",
+                "name": "To Do",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selmW3kki07JdRzAI",
+                "name": "In Progress",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selQBtoAvOOYBqBJ8",
+                "name": "Blocked",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selILKYHxmmC6ZmZZ",
+                "name": "Awaiting Review",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selolDadmRRjHyDde",
+                "name": "Completed",
+                "color": "yellowLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldO6IbDj71Yt9H2U",
+          "name": "Time Started In Progress",
+          "type": "dateTime",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "America/Chicago"
+          }
+        },
+        {
+          "id": "fldjjOuygGswy3VIZ",
+          "name": "Time Completed",
+          "type": "dateTime",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "America/Chicago"
+          }
+        },
+        {
+          "id": "fld6mJbN6JMx7D8eo",
+          "name": "Time Spent (minutes)",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n    AND({fldO6IbDj71Yt9H2U}, {fldjjOuygGswy3VIZ}),\n    DATETIME_DIFF({fldjjOuygGswy3VIZ}, {fldO6IbDj71Yt9H2U}, 'minutes')\n)",
+            "referencedFieldIds": [
+              "fldO6IbDj71Yt9H2U",
+              "fldjjOuygGswy3VIZ"
+            ],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "fldaICkmqBCAYjsUK",
+          "name": "Time Spent (Formatted)",
+          "type": "formula",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n    {fld6mJbN6JMx7D8eo},\n    INT({fld6mJbN6JMx7D8eo} / 60) & \"h \" &\n    MOD({fld6mJbN6JMx7D8eo}, 60) & \"m\"\n)",
+            "referencedFieldIds": [
+              "fld6mJbN6JMx7D8eo"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldAyYpqRcISIUYBD",
+          "name": "Work Started By",
+          "type": "singleCollaborator",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldAhhTxffWEFyLK8",
+          "name": "Work Completed By",
+          "type": "singleCollaborator",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldfScHaQztv1I7Zk",
+          "name": "Task Assigned By",
+          "type": "singleCollaborator",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldvD2sB79G0VZNvl",
+          "name": "Priority",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selK9sbN4xI42HMsn",
+                "name": "High",
+                "color": "blueLight2"
+              },
+              {
+                "id": "seleSS6gNDHoDHSdf",
+                "name": "Medium",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel536WgsOM1xbRGF",
+                "name": "Low",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldXiUylJXdSMlyvb",
+          "name": "Description/Notes",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fld9UIAR9qAGkLhR0",
+          "name": "Related Client",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblSKxOOB2SrEPI1V",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld1RGrQf4pesliui"
+          }
+        },
+        {
+          "id": "fldiILfocPHmQOcZA",
+          "name": "Related Shoot",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblIcLzkF1zhPU4gk",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldYsvTqmjWNISoSD"
+          }
+        },
+        {
+          "id": "fldyrya9vfYhElQ0x",
+          "name": "Related Deliverable",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblACm9VZZbgUFz36",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldPyistqtnqU7K8Z"
+          }
+        },
+        {
+          "id": "fldEnLVBkTC11FcYI",
+          "name": "Created Date",
+          "type": "createdTime",
+          "description": null,
+          "options": {
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "us",
+                  "format": "M/D/YYYY"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "utc"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldQTsYUZzX1J7fwR",
+          "name": "Completed Date",
+          "type": "date",
+          "description": null,
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          }
+        },
+        {
+          "id": "fldDUKGhm7Mcgcagk",
+          "name": "_AssignedToEmailLookup",
+          "type": "multipleLookupValues",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldQeNZbY6wOiGqyO",
+            "fieldIdInLinkedTable": "fldy5nbAbdj7etkIA",
+            "result": {
+              "type": "email"
+            }
+          }
+        },
+        {
+          "id": "fldSfRsxsLPd8ionx",
+          "name": "Attachments",
+          "type": "multipleAttachments",
+          "description": null,
+          "options": {
+            "isReversed": false
+          }
+        },
+        {
+          "id": "fldUNodLh2suAUoJ7",
+          "name": "Last Modified",
+          "type": "lastModifiedTime",
+          "description": null,
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "local",
+                  "format": "l"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "client"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldFNcJnru5exGLn2",
+          "name": "Last Modified By",
+          "type": "lastModifiedBy",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldIHXqur0BkbWV2k",
+          "name": "Master Calendar",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        }
+      ]
+    },
+    {
+      "id": "tblSasZtTICsNl4GU",
+      "name": "Client Portal",
+      "description": null,
+      "fieldsCount": 11,
+      "fields": [
+        {
+          "id": "fldOPSPDTv8d70nnI",
+          "name": "ID",
+          "type": "autoNumber",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldSVGUgPZfJq7jnv",
+          "name": "Client",
+          "type": "multipleRecordLinks",
+          "description": null,
+          "options": {
+            "linkedTableId": "tblSKxOOB2SrEPI1V",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldKNkI8C8USAVKfP"
+          }
+        },
+        {
+          "id": "fldbeiTbmw35onEKW",
+          "name": "Content",
+          "type": "multilineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldrj2JUSbRaNpk1M",
+          "name": "Type",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "sel1ldFoewskSoLXf",
+                "name": "Request",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel7C103Cm6iWYXkN",
+                "name": "Insight",
+                "color": "cyanLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldbIpq46ALFrflzL",
+          "name": "Priority",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selSid66sUyOod5AG",
+                "name": "Normal",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel7XcT61SupfEg12",
+                "name": "Urgent",
+                "color": "cyanLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldhEVv3WcWSWf820",
+          "name": "Topic",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selDBBQCc2F1ETCTV",
+                "name": "Content",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selM7pezEp2jFZkxT",
+                "name": "Strategy",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel235DTNNyIrMmMn",
+                "name": "Business Update",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selPMqZ6vFYXRXRLE",
+                "name": "General",
+                "color": "greenLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldtyDO9RgeWvZGF2",
+          "name": "Date",
+          "type": "createdTime",
+          "description": null,
+          "options": {
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "dateFormat": {
+                  "name": "us",
+                  "format": "M/D/YYYY"
+                },
+                "timeFormat": {
+                  "name": "12hour",
+                  "format": "h:mma"
+                },
+                "timeZone": "America/Chicago"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldqBmNcay0D5mvv6",
+          "name": "Client Portal Subdomain",
+          "type": "singleLineText",
+          "description": null,
+          "options": null
+        },
+        {
+          "id": "fldi9tZxe4GYRtPQ9",
+          "name": "Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "sels18nI1CRBqVoac",
+                "name": "New",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selhCRpKAp6aQ9C6c",
+                "name": "Working",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selSzvyWLPKgLJS5e",
+                "name": "Done",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fld8jPr33LJOwNpRb",
+          "name": "Voice Memo",
+          "type": "multipleAttachments",
+          "description": null,
+          "options": {
+            "isReversed": false
+          }
+        },
+        {
+          "id": "fldYqev1TQSwHlI6q",
+          "name": "Transcription Status",
+          "type": "singleSelect",
+          "description": null,
+          "options": {
+            "choices": [
+              {
+                "id": "selFG91ReEi79y8u8",
+                "name": "Pending",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel1n1blCgMF27Wp5",
+                "name": "Completed",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selduiMHelHSSKYlK",
+                "name": "Failed",
+                "color": "tealLight2"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

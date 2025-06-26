@@ -30,9 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*.local
-env.local
+
 
 # vercel
 .vercel
@@ -40,7 +38,3 @@ env.local
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Airtable schema files (contain sensitive data, can be regenerated)
-airtable-schema.json
-AIRTABLE_SCHEMA.md
